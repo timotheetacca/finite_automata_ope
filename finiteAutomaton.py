@@ -1,14 +1,12 @@
 class finiteAutomaton:
-    def __init__(self, arrayLetters: set[str], arrayStates: set[str], arrayInitialStates: set[str], arrayFinalStates: set[str], arrayTransitions: set[str]):
+    def __init__(self, arrayLetters: list[str], arrayStates: list[str], arrayInitialStates: list[str], arrayFinalStates: list[str], arrayTransitions: list[str]):
         """
         Constructor of the class finiteAutomate
-        :param arrayLetters: set of letters used in the automaton
-        :param arrayStates: set of states used in the automaton
-        :param arrayInitialStates: set of initial states of the automaton
-        :param arrayFinalStates: set of final states of the automaton
-        :param arrayTransitions: set of transitions of the automaton
-        
-        BTW, I (Thomas) used sets instead of arrays because in a set, the elements are unique, and we don't want to have two times the same state, letter, etc.
+        :param arrayLetters: array of letters used in the automaton
+        :param arrayStates: array of states used in the automaton
+        :param arrayInitialStates: array of initial states of the automaton
+        :param arrayFinalStates: array of final states of the automaton
+        :param arrayTransitions: array of transitions of the automaton
         """
         
         self.arrayLetters = arrayLetters
@@ -16,7 +14,7 @@ class finiteAutomaton:
         self.arrayInitialStates = arrayInitialStates
         self.arrayFinalStates = arrayFinalStates
         self.arrayTransitions = arrayTransitions # I.e, ["0a0", "0b0", "0a1", "1b2", "a3", "3a4"]
-        self.dictTransitions = {} #I.e, {0: {a: set([0, 1]), b: set([0])}, 1: {b: set([2])}, 3: {a: set([4])}} (for the example above)
+        self.dictTransitions = {} #I.e, {0: {a: [0, 1], b: [0]}, 1: {b: [2]}, 3: {a: [4]}} (for the example above)
             
 
     def fillTransitionDico(self)->None:
@@ -27,12 +25,12 @@ class finiteAutomaton:
         
         for transition in self.arrayTransitions: # transition is in the form "0a0" for example
             if transition[0] not in self.dictTransitions.keys():
-                self.dictTransitions[transition[0]] = {transition[1] : set([transition[2]])}
+                self.dictTransitions[transition[0]] = {transition[1] : [transition[2]]}
             else:
                 if transition[1] not in self.dictTransitions[transition[0]].keys():
-                    self.dictTransitions[transition[0]][transition[1]] = set([transition[2]])
+                    self.dictTransitions[transition[0]][transition[1]] = [transition[2]]
                 else:
-                    self.dictTransitions[transition[0]][transition[1]].add(transition[2])
+                    self.dictTransitions[transition[0]][transition[1]].append(transition[2])
                 
         return
     
