@@ -7,6 +7,8 @@ def main():
     fa = finite_automata(file_path)
     fa.get_fa_information()
     fa.get_csv_from_fa(csv_path)
+    print(f"{file_path} has been successfully converted into {csv_path}.")
+
 
 if __name__ == "__main__":
     main()
