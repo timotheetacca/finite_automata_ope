@@ -11,7 +11,7 @@ class finite_automata:
         self.list_final_states = []
         self.nb_transitions = 0
         
-        # Of the form : {key: {symbol: [ ], symbol_2: [ ] }}
+        # Of the form : {key: {symbol_1: [ ], symbol_2: [ ] }}
         self.dict_transitions = {} 
         
         self.dict_sink = {}
@@ -138,8 +138,7 @@ class finite_automata:
         
         for state in self.dict_transitions.keys():
             for symbol in self.list_symbols:
-                array_end_states = self.dict_transitions[state][symbol]
-                if initial_state in array_end_states:
+                if initial_state in  self.dict_transitions[state][symbol]:
                     if display == True :
                         print(f"Your automaton is not standard. {state} goes to the initial state ⚠ \n")
                     return False
