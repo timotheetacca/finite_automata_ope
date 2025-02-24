@@ -177,6 +177,7 @@ class finite_automata:
         # Recursively process new combined states
         if new_states:
             self.determinization(new_states)
+
         # After processing all new states, clean up the original states
         self.cleanup_original_states()
 
@@ -212,14 +213,8 @@ class finite_automata:
                             if transition != "P" and transition not in reachable_states:
                                 list_states.append(transition)
 
-        # Identify original states that are part of a combined state
-        combined_states = []
-        for state in self.dict_transitions.keys():
-            if "|" in state:
-                for sub_state in state.split("|"):
-                    combined_states.append(sub_state)
 
         # Remove original states that are part of a combined state and are not reachable
         for state in list(self.dict_transitions.keys()):
-            if ("|" not in state) and (state in combined_states) and (state not in reachable_states):
+            if ("|" not in state) and (state not in reachable_states):
                 self.dict_transitions.pop(state)
