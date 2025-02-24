@@ -100,28 +100,31 @@ class finite_automata:
                     row.append("P")
                 writer.writerow(row)
 
-    def is_deterministic(self):
+    def is_deterministic(self, display=False):
         # Check if the automaton has more than 1 initial state, if yes, the automaton is not deterministic
         if self.nb_initial_states > 1:
-            print("Your automaton is not deterministic. There are several initial states ⚠ \n")
+            if display == True:
+                print("Your automaton is not deterministic. There are several initial states ⚠ \n")
             return False
 
         # Check if a state has more than 1 transition for a given symbol, if yes, the automaton is not deterministic
         for state in self.dict_transitions:
             for symbol in self.list_symbols:
                 if len(self.dict_transitions[state][symbol]) > 1:
-                    print(f"Your automaton is not deterministic. State {state} has "
-                          f"{len(self.dict_transitions[state][symbol])} transitions for symbol '{symbol}' ⚠ \n")
+                    if display == True:
+                        print(f"Your automaton is not deterministic. State {state} has "
+                            f"{len(self.dict_transitions[state][symbol])} transitions for symbol '{symbol}' ⚠ \n")
                     return False
 
         return True
 
-    def is_complete(self):
+    def is_complete(self, display=False):
         # Check if there are empty transitions, if yes, the automaton is not deterministic
         for state in self.dict_transitions.keys():
             for symbol in self.list_symbols:
                 if self.dict_transitions[state][symbol] == []:
-                    print(f"Your automaton is not complete. State {state} has no transitions for symbol '{symbol}' ⚠ \n")
+                    if display == True:
+                        print(f"Your automaton is not complete. State {state} has no transitions for symbol '{symbol}' ⚠ \n")
                     return False
         return True
 
@@ -139,6 +142,7 @@ class finite_automata:
 
     def determinization(self, states_to_process=None):
         # Start with all existing states unless specific ones are given
+        old_fa_was_completed = self.is_complete()
         if states_to_process is None:
             states_to_process = list(self.dict_transitions.keys())
         new_states = []
@@ -181,12 +185,17 @@ class finite_automata:
                                                 # If the transition doesn't exist yet,  add it to the list of transitions
                                                 self.dict_transitions[new_state][list_symbols_i].append(transition)
 
+
         # Recursively process new combined states
         if new_states:
             self.determinization(new_states)
 
         # After processing all new states, clean up the original states
         self.cleanup_original_states()
+
+        if old_fa_was_completed == True:
+            self.completion()
+
 
     def cleanup_original_states(self):
         # List to store reachable states
