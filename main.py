@@ -11,6 +11,7 @@ def main():
 
     fa.is_deterministic(True)
     fa.is_complete(True)
+    fa.is_standard(True)
     fa.completion()
 
     fa.get_csv_from_fa(csv_path)

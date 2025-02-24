@@ -137,7 +137,7 @@ class finite_automata:
         initial_state = self.list_initial_states[0]
         
         for state in self.dict_transitions.keys():
-            for symbol in self.list_symbol:
+            for symbol in self.list_symbols:
                 array_end_states = self.dict_transitions[state][symbol]
                 if initial_state in array_end_states:
                     if display == True :
