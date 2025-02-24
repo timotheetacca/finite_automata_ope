@@ -134,21 +134,18 @@ class finite_automata:
         if(self.nb_initial_states != 1): 
             return False
         
-        with open(self.file_path, "r") as fa:
-            # Read the automaton file and split it into lines
-            lines = []
-            for line in fa.readlines():
-                lines.append(line.strip())
-                
-            for transition in lines[5:]:      # Transition is of the form "0 a 0" or "10 b 1"
-                
-                # end_state is the last state when we do the transition
-                end_state = transition[-1]   
-                
-                if end_state in self.list_initial_states:
+        initial_state = self.list_initial_states[0]
+        
+        for state in self.dict_transitions.keys():
+            for symbol in self.list_symbol:
+                array_end_states = self.dict_transitions[state][symbol]
+                if initial_state in array_end_states:
+                    if display == True :
+                        print(f"Your automaton is not standard. {state} goes to the initial state ⚠ \n")
                     return False
-                        
-            return True
+            
+        return True
+        
 
     def completion(self):
         """
