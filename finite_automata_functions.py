@@ -11,7 +11,7 @@ class finite_automata:
         self.list_final_states = []
         self.nb_transitions = 0
         
-        # Of the form : {'0': {'a': ['1', '0'], 'b': ['1']}, '1': {'a': [], 'b': ['2']}, '2': {'a': ['3'], 'b': []}}
+        # Of the form : {key: {symbol: [ ], symbol_2: [ ] }}
         self.dict_transitions = {} 
         
         self.dict_sink = {}
@@ -45,9 +45,9 @@ class finite_automata:
                     self.list_symbols.append((lines[i + 5]).split(" ")[1])
 
             # Create a dictionary to store where each state goes for each symbol
-            for transition in lines[5:]:      # Transition is of the form "0 a 0" or "10 b 1"
+            for transition in lines[5:]:     
                 
-                # split_transition is of the form ["0", "a", "0"] or ["10", "b", "1"]
+                # split_transition is of the form [source state, symbol, target state]
                 split_transition = transition.split(" ")    
                 
                 # Check if transition[0] and transition[2] are in the dict, if not add them with empty symbols list
