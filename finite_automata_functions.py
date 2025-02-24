@@ -83,7 +83,7 @@ class finite_automata:
                         for i in range(len(transition)):
                             transition[i] = str(transition[i])
                         # Join the list into a single string separated by commas if there is more than 1 element
-                        row.append(".".join(transition))
+                        row.append("|".join(transition))
 
                     else:
                         row.append("--")
@@ -185,3 +185,44 @@ class finite_automata:
         # Recursively process new combined states
         if new_states:
             self.determinization(new_states)
+
+        # After processing all new states, clean up the original states
+        self.cleanup_original_states()
+
+    def cleanup_original_states(self):
+        # List to store reachable states and start with initial states
+        reachable_states = []
+        list_states = list(self.list_initial_states)
+
+        while len(list_states) > 0:
+            current_state = list_states[-1]
+            list_states = list_states[:-1]
+            if current_state not in reachable_states:
+                # Add all states reachable from the current state
+                reachable_states.append(current_state)
+
+                # Check if the state still exists
+                if current_state in self.dict_transitions:
+                    for symbol in self.list_symbols:
+                        # Loop between all the transitions of the state we are currently on except sink states
+                        for transition in self.dict_transitions[current_state][symbol]:
+                            if transition != "P" and transition not in reachable_states:
+                                list_states.append(transition)
+
+        # Identify original states that are part of a combined state
+        combined_states = []
+        for state in self.dict_transitions.keys():
+            if "|" in state:
+                for sub_state in state.split("|"):
+                    combined_states.append(sub_state)
+
+        # Remove original states that are part of a combined stat, but don't remove if the state is final or initial
+        for state in list(self.dict_transitions.keys()):
+            if ("|" not in state) and (state in combined_states) and (state not in self.list_final_states) and (state not in self.list_initial_states):
+                self.dict_transitions.pop(state)
+
+        # If there are multiple initial states, create a combined initial state
+        if len(self.list_initial_states) > 1:
+            new_initial_state = "|".join(sorted(self.list_initial_states))
+            self.list_initial_states = [new_initial_state]
+            self.nb_initial_states = 1
