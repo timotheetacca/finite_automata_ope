@@ -1,5 +1,6 @@
 import csv, os
 
+
 class finite_automata:
     def __init__(self, file_path):
         self.file_path = file_path
@@ -10,10 +11,10 @@ class finite_automata:
         self.nb_final_states = 0
         self.list_final_states = []
         self.nb_transitions = 0
-        
+
         # Of the form : {key: {symbol_1: [ ], symbol_2: [ ] }}
-        self.dict_transitions = {} 
-        
+        self.dict_transitions = {}
+
         self.dict_sink = {}
         self.list_symbols = []
 
@@ -45,15 +46,15 @@ class finite_automata:
                     self.list_symbols.append((lines[i + 5]).split(" ")[1])
 
             # Create a dictionary to store where each state goes for each symbol
-            for transition in lines[5:]:     
-                
+            for transition in lines[5:]:
+
                 # split_transition is of the form [source state, symbol, target state]
-                split_transition = transition.split(" ")    
-                
+                split_transition = transition.split(" ")
+
                 # Check if transition[0] and transition[2] are in the dict, if not add them with empty symbols list
-                for j in [0,2]:
+                for j in [0, 2]:
                     if self.dict_transitions.get(split_transition[j]) == None:
-                        
+
                         # Add the states
                         self.dict_transitions[split_transition[j]] = {}
 
@@ -63,7 +64,6 @@ class finite_automata:
 
                 # Add every corresponding states to their symbol
                 self.dict_transitions[split_transition[0]][split_transition[1]].append(split_transition[2])
-                
 
     def get_csv_from_fa(self, output_filepath):
         with open(output_filepath, "w", newline="") as csvfile:
@@ -112,7 +112,8 @@ class finite_automata:
             for symbol in self.list_symbols:
                 if len(self.dict_transitions[state][symbol]) > 1:
                     if display == True:
-                        print(f"Your automaton is not deterministic. State {state} has {len(self.dict_transitions[state][symbol])} transitions for symbol '{symbol}' ⚠ \n")
+                        print(
+                            f"Your automaton is not deterministic. State {state} has {len(self.dict_transitions[state][symbol])} transitions for symbol '{symbol}' ⚠ \n")
                     return False
 
         return True
@@ -123,33 +124,33 @@ class finite_automata:
             for symbol in self.list_symbols:
                 if self.dict_transitions[state][symbol] == []:
                     if display == True:
-                        print(f"Your automaton is not complete. State {state} has no transitions for symbol '{symbol}' ⚠ \n")
+                        print(
+                            f"Your automaton is not complete. State {state} has no transitions for symbol '{symbol}' ⚠ \n")
                     return False
         return True
-    
+
     def is_standard(self, display=False):
-        
+
         # If a FA has more than 1 initial state, it is not standard
-        if(self.nb_initial_states != 1): 
+        if (self.nb_initial_states != 1):
             return False
-        
+
         initial_state = self.list_initial_states[0]
-        
+
         for state in self.dict_transitions.keys():
             for symbol in self.list_symbols:
-                if initial_state in  self.dict_transitions[state][symbol]:
-                    if display == True :
+                if initial_state in self.dict_transitions[state][symbol]:
+                    if display == True:
                         print(f"Your automaton is not standard. {state} goes to the initial state ⚠ \n")
                     return False
-            
+
         return True
-        
 
     def completion(self):
         """
         Function that completes the automaton with a sink state
         """
-        
+
         # Link all the empty transitions to the sink state
         for state in self.dict_transitions.keys():
             for symbol in self.list_symbols:
@@ -161,17 +162,9 @@ class finite_automata:
         for i in range(self.nb_symbols):
             self.dict_sink["P"][self.list_symbols[i]] = ["P"]
 
-<<<<<<< HEAD
+
     def determinization(self):
-        # If the old automaton was complete, the determined one will also be complte
-=======
-    def determinization(self, states_to_process=None):
-        """
-        Function that determinizes the automaton
-        """
-        
-        # Start with all existing states unless specific ones are given
->>>>>>> origin/main
+        # If the old automata was completed, the determined one will also be determined
         old_fa_was_completed = self.is_complete()
 
         # Save old initial states if there is more than one, will be used later
@@ -215,7 +208,6 @@ class finite_automata:
 
                 # Split the combined states into sub states
                 for sub_state in state.split("|"):
-
                     # If one of the sub state is a final state, flag it to make new state a final state
                     if sub_state in self.list_final_states:
                         new_final_state = True
@@ -255,6 +247,7 @@ class finite_automata:
         if old_fa_was_completed:
             self.completion()
 
+    
     def cleanup_original_states(self):
         # List to store reachable states
         reachable_states = []
