@@ -10,7 +10,10 @@ class finite_automata:
         self.nb_final_states = 0
         self.list_final_states = []
         self.nb_transitions = 0
-        self.dict_transitions = {}
+        
+        # Of the form : {'0': {'a': ['1', '0'], 'b': ['1']}, '1': {'a': [], 'b': ['2']}, '2': {'a': ['3'], 'b': []}}
+        self.dict_transitions = {} 
+        
         self.dict_sink = {}
         self.list_symbols = []
 
@@ -42,11 +45,15 @@ class finite_automata:
                     self.list_symbols.append((lines[i + 5]).split(" ")[1])
 
             # Create a dictionary to store where each state goes for each symbol
-            for transition in lines[5:]:
-                split_transition = transition.split(" ")
+            for transition in lines[5:]:      # Transition is of the form "0 a 0" or "10 b 1"
+                
+                # split_transition is of the form ["0", "a", "0"] or ["10", "b", "1"]
+                split_transition = transition.split(" ")    
+                
                 # Check if transition[0] and transition[2] are in the dict, if not add them with empty symbols list
-                for j in range(0, 3, 2):
+                for j in [0,2]:
                     if self.dict_transitions.get(split_transition[j]) == None:
+                        
                         # Add the states
                         self.dict_transitions[split_transition[j]] = {}
 
@@ -56,6 +63,7 @@ class finite_automata:
 
                 # Add every corresponding states to their symbol
                 self.dict_transitions[split_transition[0]][split_transition[1]].append(split_transition[2])
+                
 
     def get_csv_from_fa(self, output_filepath):
         with open(output_filepath, "w", newline="") as csvfile:
