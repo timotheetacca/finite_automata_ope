@@ -79,11 +79,8 @@ class finite_automata:
                     transition = self.dict_transitions[state].get(symbol)
 
                     if len(transition) > 0:
-                        # If the transition isn't empty, convert each state to a string
-                        for i in range(len(transition)):
-                            transition[i] = str(transition[i])
                         # Join the list into a single string separated by commas if there is more than 1 element
-                        row.append("|".join(transition))
+                        row.append("|".join(sorted(transition)))
 
                     else:
                         row.append("--")
@@ -193,6 +190,8 @@ class finite_automata:
         # List to store reachable states and start with initial states
         reachable_states = []
         list_states = list(self.list_initial_states)
+
+
 
         while len(list_states) > 0:
             current_state = list_states[-1]
