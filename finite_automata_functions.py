@@ -1,6 +1,5 @@
 import csv, os
 
-
 class finite_automata:
     def __init__(self, file_path):
         self.file_path = file_path
@@ -81,7 +80,6 @@ class finite_automata:
                     if len(transition) > 0:
                         # Join the list into a single string separated by commas if there is more than 1 element
                         row.append("|".join(sorted(transition)))
-
                     else:
                         row.append("--")
 
@@ -115,8 +113,7 @@ class finite_automata:
         for state in self.dict_transitions.keys():
             for symbol in self.list_symbols:
                 if self.dict_transitions[state][symbol] == []:
-                    print(
-                        f"Your automaton is not complete. State {state} has no transitions for symbol '{symbol}' ⚠ \n")
+                    print(f"Your automaton is not complete. State {state} has no transitions for symbol '{symbol}' ⚠ \n")
                     return False
         return True
 
@@ -126,7 +123,7 @@ class finite_automata:
             for symbol in self.list_symbols:
                 if self.dict_transitions[state][symbol] == []:
                     self.dict_transitions[state][symbol] = ["P"]
-
+                    
         # Add the sink state
         self.dict_sink["P"] = {}
         for i in range(self.nb_symbols):
@@ -136,7 +133,6 @@ class finite_automata:
         # Start with all existing states unless specific ones are given
         if states_to_process is None:
             states_to_process = list(self.dict_transitions.keys())
-
         new_states = []
 
         # Process only the given states
@@ -154,10 +150,9 @@ class finite_automata:
                 if len(transitions) > 1:
                     # Create a new combined state for multiple transitions, excluding "P"
                     new_state = "|".join(sorted(transitions))
-
+                    
                     if new_state not in self.dict_transitions:
                         new_states.append(new_state)
-
                         # Initialize the new state with empty transitions
                         self.dict_transitions[new_state] = {}
                         for list_symbols_i in self.list_symbols:
@@ -182,29 +177,38 @@ class finite_automata:
         # Recursively process new combined states
         if new_states:
             self.determinization(new_states)
-
         # After processing all new states, clean up the original states
         self.cleanup_original_states()
 
     def cleanup_original_states(self):
-        # List to store reachable states and start with initial states
+        # List to store reachable states
         reachable_states = []
+
+        # If there are multiple initial states, create a combined initial state
+        if len(self.list_initial_states) > 1:
+            new_initial_state = "|".join(sorted(self.list_initial_states))
+            self.list_initial_states = [new_initial_state]
+            self.nb_initial_states = 1
+        # Start from initial state
         list_states = list(self.list_initial_states)
-
-
 
         while len(list_states) > 0:
             current_state = list_states[-1]
             list_states = list_states[:-1]
             if current_state not in reachable_states:
-                # Add all states reachable from the current state
                 reachable_states.append(current_state)
 
                 # Check if the state still exists
                 if current_state in self.dict_transitions:
                     for symbol in self.list_symbols:
-                        # Loop between all the transitions of the state we are currently on except sink states
+                        # Loop between all the transitions of the state we are currently on
                         for transition in self.dict_transitions[current_state][symbol]:
+
+                            # If the there is more than 1 transition for the state, join it as the new_state
+                            if len(self.dict_transitions[current_state][symbol]) > 1:
+                                transition = "|".join(sorted(self.dict_transitions[current_state][symbol]))
+
+                            # If the transition we are on isn't a sink state and is reachable, keep it for the table
                             if transition != "P" and transition not in reachable_states:
                                 list_states.append(transition)
 
@@ -215,13 +219,7 @@ class finite_automata:
                 for sub_state in state.split("|"):
                     combined_states.append(sub_state)
 
-        # Remove original states that are part of a combined stat, but don't remove if the state is final or initial
+        # Remove original states that are part of a combined state and are not reachable
         for state in list(self.dict_transitions.keys()):
-            if ("|" not in state) and (state in combined_states) and (state not in self.list_final_states) and (state not in self.list_initial_states):
+            if ("|" not in state) and (state in combined_states) and (state not in reachable_states):
                 self.dict_transitions.pop(state)
-
-        # If there are multiple initial states, create a combined initial state
-        if len(self.list_initial_states) > 1:
-            new_initial_state = "|".join(sorted(self.list_initial_states))
-            self.list_initial_states = [new_initial_state]
-            self.nb_initial_states = 1
