@@ -9,10 +9,10 @@ def main():
     fa.get_csv_from_fa(csv_path)
     print(f"{file_path} has been successfully converted into {csv_path} \n")
 
-    fa.is_deterministic()
-    fa.is_complete()
-
+    fa.is_deterministic(True)
+    fa.is_complete(True)
     fa.completion()
+
     fa.get_csv_from_fa(csv_path)
 
     fa.determinization()
