@@ -129,6 +129,10 @@ class finite_automata:
         return True
 
     def completion(self):
+        """
+        Function that completes the automaton with a sink state
+        """
+        
         # Link all the empty transitions to the sink state
         for state in self.dict_transitions.keys():
             for symbol in self.list_symbols:
@@ -141,6 +145,10 @@ class finite_automata:
             self.dict_sink["P"][self.list_symbols[i]] = ["P"]
 
     def determinization(self, states_to_process=None):
+        """
+        Function that determinizes the automaton
+        """
+        
         # Start with all existing states unless specific ones are given
         old_fa_was_completed = self.is_complete()
         if states_to_process is None:
