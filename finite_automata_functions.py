@@ -1,5 +1,6 @@
 import csv, os
 
+
 class finite_automata:
     def __init__(self, file_path):
         self.file_path = file_path
@@ -117,7 +118,8 @@ class finite_automata:
         for state in self.dict_transitions.keys():
             for symbol in self.list_symbols:
                 if self.dict_transitions[state][symbol] == []:
-                    print(f"Your automaton is not complete. State {state} has no transitions for symbol '{symbol}' ⚠ \n")
+                    print(
+                        f"Your automaton is not complete. State {state} has no transitions for symbol '{symbol}' ⚠ \n")
                     return False
         return True
 
@@ -133,9 +135,9 @@ class finite_automata:
         for i in range(self.nb_symbols):
             self.dict_sink["P"][self.list_symbols[i]] = ["P"]
 
-    def determinization_and_completion_automaton(self, states_to_process=None):
+    def determinization(self, states_to_process=None):
         # Start with all existing states unless specific ones are given
-        if states_to_process == None:
+        if states_to_process is None:
             states_to_process = list(self.dict_transitions.keys())
 
         new_states = []
@@ -143,46 +145,43 @@ class finite_automata:
         # Process only the given states
         for state in states_to_process:
             for symbol in self.list_symbols:
+                transitions = []
 
-                # Check if the transition has more than 1 state for the same symbol, if yes, create a new combined state
-                if len(self.dict_transitions[state][symbol]) > 1:
-                    new_state = ""
-                    for i in range(len(self.dict_transitions[state][symbol])):
-                        # Split the new state with ".", so you can differentiate 10 from 1.0
-                        if len(new_state) > 0:
-                            new_state += f"|{self.dict_transitions[state][symbol][i]}"
-                        else:
-                            new_state += f"{self.dict_transitions[state][symbol][i]}"
+                # Collect all transitions for the current state and symbol
+                for sub_state in state.split("|"):
+                    if sub_state in self.dict_transitions:
+                        for transition in self.dict_transitions[sub_state][symbol]:
+                            if transition != "P" and transition not in transitions:
+                                transitions.append(transition)
 
-                    # If the new state doesn't exist, add it
+                if len(transitions) > 1:
+                    # Create a new combined state for multiple transitions, excluding "P"
+                    new_state = "|".join(sorted(transitions))
+
                     if new_state not in self.dict_transitions:
                         new_states.append(new_state)
 
-                        # Create an empty key with all empty symbol
+                        # Initialize the new state with empty transitions
                         self.dict_transitions[new_state] = {}
-                        for i in range(len(self.list_symbols)):
-                            self.dict_transitions[new_state][self.list_symbols[i]] = ["P"]
+                        for list_symbols_i in self.list_symbols:
+                            self.dict_transitions[new_state][list_symbols_i] = ["P"]
 
-                        # Split the new state to get all the added states
-                        new_state_components = new_state.split("|")
+                        # Inherit transitions from the components of the new state
+                        for sub_state in transitions:
+                            if sub_state in self.dict_transitions:
+                                for list_symbols_i in self.list_symbols:
+                                    for transition in self.dict_transitions[sub_state][list_symbols_i]:
+                                        # Skip transitions to the sink state ("P")
+                                        if transition != "P":
 
-                        for sub_state in new_state_components:
-                            # Loop through each part of the new combined state
-                            for symbol in self.list_symbols:
-                                for transition in self.dict_transitions[sub_state][symbol]:
+                                            # If the new state's transition is P, replace it with the current transition.
+                                            if self.dict_transitions[new_state][list_symbols_i] == ["P"]:
+                                                self.dict_transitions[new_state][list_symbols_i] = [transition]
 
-                                    # Skip transitions to the sink state ("P")
-                                    if transition != "P":
-                                        # If the new state's transition is P, replace it with the current transition.
-                                        if self.dict_transitions[new_state][symbol] == ['P']:
-                                            self.dict_transitions[new_state][symbol] = [transition]
+                                            elif transition not in self.dict_transitions[new_state][list_symbols_i]:
+                                                # If the transition doesn't exist yet,  add it to the list of transitions
+                                                self.dict_transitions[new_state][list_symbols_i].append(transition)
 
-                                        if transition not in self.dict_transitions[new_state][symbol]:
-                                            # If the transition doesn't exist yet,  add it to the list of transitions
-                                            self.dict_transitions[new_state][symbol].append(transition)
-
-        # Repeat for the new combined states until no more can be created
+        # Recursively process new combined states
         if new_states:
-            self.determinization_and_completion_automaton(new_states)
-
-
+            self.determinization(new_states)

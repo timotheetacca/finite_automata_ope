@@ -15,7 +15,7 @@ def main():
     fa.completion()
     fa.get_csv_from_fa(csv_path)
 
-    fa.determinization_and_completion_automaton()
+    fa.determinization()
 
     fa.get_csv_from_fa(csv_path)
 
