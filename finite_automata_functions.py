@@ -127,6 +127,28 @@ class finite_automata:
                         print(f"Your automaton is not complete. State {state} has no transitions for symbol '{symbol}' ⚠ \n")
                     return False
         return True
+    
+    def is_standard(self, display=False):
+        
+        # If a FA has more than 1 initial state, it is not standard
+        if(self.nb_initial_states != 1): 
+            return False
+        
+        with open(self.file_path, "r") as fa:
+            # Read the automaton file and split it into lines
+            lines = []
+            for line in fa.readlines():
+                lines.append(line.strip())
+                
+            for transition in lines[5:]:      # Transition is of the form "0 a 0" or "10 b 1"
+                
+                # end_state is the last state when we do the transition
+                end_state = transition[-1]   
+                
+                if end_state in self.list_initial_states:
+                    return False
+                        
+            return True
 
     def completion(self):
         """
