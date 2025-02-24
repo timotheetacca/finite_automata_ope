@@ -150,13 +150,12 @@ class finite_automata:
                 if len(transitions) > 1:
                     # Create a new combined state for multiple transitions, excluding "P"
                     new_state = "|".join(sorted(transitions))
-                    
                     if new_state not in self.dict_transitions:
                         new_states.append(new_state)
                         # Initialize the new state with empty transitions
                         self.dict_transitions[new_state] = {}
                         for list_symbols_i in self.list_symbols:
-                            self.dict_transitions[new_state][list_symbols_i] = ["P"]
+                            self.dict_transitions[new_state][list_symbols_i] = []
 
                         # Inherit transitions from the components of the new state
                         for sub_state in transitions:
@@ -167,7 +166,7 @@ class finite_automata:
                                         if transition != "P":
 
                                             # If the new state's transition is P, replace it with the current transition.
-                                            if self.dict_transitions[new_state][list_symbols_i] == ["P"]:
+                                            if self.dict_transitions[new_state][list_symbols_i] == []:
                                                 self.dict_transitions[new_state][list_symbols_i] = [transition]
 
                                             elif transition not in self.dict_transitions[new_state][list_symbols_i]:
