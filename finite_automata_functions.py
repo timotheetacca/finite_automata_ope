@@ -2,8 +2,8 @@ import csv, os
 
 
 class finite_automata:
-    def __init__(self, file_path):
-        self.file_path = file_path
+    def __init__(self, filepath):
+        self.filepath = filepath
         self.nb_symbols = 0
         self.nb_states = 0
         self.nb_initial_states = 0
@@ -20,11 +20,11 @@ class finite_automata:
 
     def get_fa_information(self):
         # Check if the file exists
-        if not os.path.exists(self.file_path):
-            print(f"You don't have any file named '{self.file_path}' ⚠ ")
+        if not os.path.exists(self.filepath):
+            print(f"You don't have any file named '{self.filepath}' ⚠ ")
             return
 
-        with open(self.file_path, "r") as fa:
+        with open(self.filepath, "r") as fa:
             # Read the automaton file and split it into lines
             lines = []
             for line in fa.readlines():
@@ -65,8 +65,8 @@ class finite_automata:
                 # Add every corresponding states to their symbol
                 self.dict_transitions[split_transition[0]][split_transition[1]].append(split_transition[2])
 
-    def get_csv_from_fa(self, output_filepath):
-        with open(output_filepath, "w", newline="") as csvfile:
+    def get_csv_from_fa(self, csv_filepath):
+        with open(csv_filepath, "w", newline="") as csvfile:
             writer = csv.writer(csvfile, delimiter=";")
 
             # Write the header of the CSV with symbols as column names, leaving two cells empty for alignment
