@@ -246,6 +246,9 @@ class finite_automata:
 
         if old_fa_was_completed:
             self.completion()
+            
+    def standardization(self):
+        pass
 
     
     def cleanup_original_states(self):
