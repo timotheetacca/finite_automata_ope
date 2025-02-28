@@ -11,7 +11,14 @@ def main():
 
     fa.is_deterministic(True)
     fa.is_complete(True)
-    fa.is_standard(True)
+    
+    if fa.is_standard(True) == False : 
+        wanna = input("Do you want to convert the FA into standard form? (y/n) ")
+        if wanna == "y":
+            fa.standardization()
+            print("FA has been converted into standard form")
+
+    
     fa.completion()
 
     fa.get_csv_from_fa(csv_path)

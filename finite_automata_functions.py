@@ -261,9 +261,9 @@ class finite_automata:
         self.nb_states += 1
         self.nb_initial_states = 1
         self.list_initial_states = ["i"]
-         
+        self.dict_transitions["i"] = dict_transition_initial_state["i"]
+      
 
-    
     def cleanup_original_states(self):
         # List to store reachable states
         reachable_states = []
