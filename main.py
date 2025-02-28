@@ -19,6 +19,8 @@ def main():
             print("FA has been converted into standard form")
 
     
+    fa.get_csv_from_fa(csv_filepath)
+    
     fa.completion()
 
     fa.get_csv_from_fa(csv_filepath)

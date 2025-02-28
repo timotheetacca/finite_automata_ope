@@ -256,7 +256,10 @@ class finite_automata:
         
         for initial_state in self.list_initial_states:
             for symbol in self.list_symbols:
-                dict_transition_initial_state["i"][symbol] += self.dict_transitions[initial_state][symbol]
+                for state_to_add in self.dict_transitions[initial_state][symbol]:
+                    if state_to_add not in dict_transition_initial_state["i"][symbol]:
+                        dict_transition_initial_state["i"][symbol].append(state_to_add)
+                        
               
         self.nb_states += 1
         self.nb_initial_states = 1
