@@ -246,8 +246,24 @@ class finite_automata:
 
         if old_fa_was_completed:
             self.completion()
+            
+    def standardization(self):
+        
+        dict_transition_initial_state = {"i" : {}}
+        for symbol in self.list_symbols:
+            dict_transition_initial_state["i"][symbol] = []
+            
+        
+        for initial_state in self.list_initial_states:
+            for symbol in self.list_symbols:
+                dict_transition_initial_state["i"][symbol] += self.dict_transitions[initial_state][symbol]
+              
+        self.nb_states += 1
+        self.nb_initial_states = 1
+        self.list_initial_states = ["i"]
+        self.dict_transitions["i"] = dict_transition_initial_state["i"]
+      
 
-    
     def cleanup_original_states(self):
         # List to store reachable states
         reachable_states = []
