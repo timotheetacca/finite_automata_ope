@@ -87,7 +87,7 @@ class finite_automata:
 
                     if len(transition) > 0:
                         # Join the list into a single string separated by commas if there is more than 1 element
-                        row.append("|".join(sorted(transition)))
+                        row.append(",".join(sorted(transition)))
                     else:
                         row.append("--")
 
@@ -147,10 +147,6 @@ class finite_automata:
         return True
 
     def completion(self):
-        """
-        Function that completes the automaton with a sink state
-        """
-
         # Link all the empty transitions to the sink state
         for state in self.dict_transitions.keys():
             for symbol in self.list_symbols:
@@ -162,9 +158,8 @@ class finite_automata:
         for i in range(self.nb_symbols):
             self.dict_sink["P"][self.list_symbols[i]] = ["P"]
 
-
     def determinization(self):
-        # If the old automata was completed, the determined one will also be determined
+        # If the old automaton was complete, the new one will also be complete
         old_fa_was_completed = self.is_complete()
 
         # Save old initial states if there is more than one, will be used later
@@ -172,8 +167,7 @@ class finite_automata:
 
         # If there are multiple initial states, create a combined initial state
         if len(self.list_initial_states) > 1:
-            # Save the initial states
-            old_initial_state = self.list_initial_states
+            old_initial_states = self.list_initial_states
             new_initial_state = "|".join(sorted(self.list_initial_states))
             self.list_initial_states = [new_initial_state]
             self.nb_initial_states = 1
@@ -186,18 +180,16 @@ class finite_automata:
             for sub_state in new_initial_state.split("|"):
                 for symbol in self.list_symbols:
                     for transition in self.dict_transitions[sub_state][symbol]:
-
                         # If not a sink state and not already in the transition list, add it
                         if transition != "P" and transition not in self.dict_transitions[new_initial_state][symbol]:
                             self.dict_transitions[new_initial_state][symbol].append(transition)
 
-        # Start with all existing states
-        states_to_process = list(self.dict_transitions.keys())
-
         # Remove all the old initial states to avoid creating new states from a transition of initial states
-        for state in old_initial_states:
-            if state in states_to_process:
-                states_to_process.remove(state)
+        states_to_process = []
+        for s in self.dict_transitions:
+            if s not in old_initial_states:
+                states_to_process.append(s)
+
         new_states = []
 
         # Process only the given states
@@ -208,7 +200,7 @@ class finite_automata:
 
                 # Split the combined states into sub states
                 for sub_state in state.split("|"):
-                    # If one of the sub state is a final state, flag it to make new state a final state
+                    # If one of the sub states is a final state, flag it to make the new state a final state
                     if sub_state in self.list_final_states:
                         new_final_state = True
 
@@ -216,12 +208,14 @@ class finite_automata:
                     for transition in self.dict_transitions[sub_state][symbol]:
                         if transition != "P" and transition not in transitions:
                             transitions.append(transition)
-                            if new_final_state == True:
-                                self.list_final_states.append(state)
-                                self.nb_final_states += 1
 
+                # If a new final state is created, add it to the list of final states
+                if new_final_state and state not in self.list_final_states:
+                    self.list_final_states.append(state)
+                    self.nb_final_states += 1
+
+                # Combine transitions into a single state if there are multiple transitions
                 if len(transitions) > 1:
-                    # Create a new combined state for multiple transitions, excluding "P"
                     new_state = "|".join(sorted(transitions))
                     if new_state not in self.dict_transitions:
                         new_states.append(new_state)
@@ -237,6 +231,11 @@ class finite_automata:
                                     if transition != "P" and transition not in self.dict_transitions[new_state][symbol]:
                                         self.dict_transitions[new_state][symbol].append(transition)
 
+                    # Update the current state transition to the combined state
+                    self.dict_transitions[state][symbol] = [new_state]
+                else:
+                    self.dict_transitions[state][symbol] = transitions
+
         # Recursively process new combined states
         if new_states:
             self.determinization()
@@ -244,11 +243,11 @@ class finite_automata:
         # After processing all new states, clean up the original states
         self.cleanup_original_states()
 
+        # If the old automaton was complete, complete the new one
         if old_fa_was_completed:
             self.completion()
-            
+
     def standardization(self):
-        
         dict_transition_initial_state = {"i" : {}}
         for symbol in self.list_symbols:
             dict_transition_initial_state["i"][symbol] = []
@@ -265,7 +264,7 @@ class finite_automata:
         self.nb_initial_states = 1
         self.list_initial_states = ["i"]
         self.dict_transitions["i"] = dict_transition_initial_state["i"]
-      
+
 
     def cleanup_original_states(self):
         # List to store reachable states
