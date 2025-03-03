@@ -203,7 +203,11 @@ class finite_automata:
                 # The newly generated groups would be called with letters, starting from A
                 new_groups = chr(64 + index)
                 index+=1
-                new_partition[new_groups] = sub_partition[group][t_behaviors]
+                if new_groups not in new_partition:
+                    new_partition[new_groups] = {}
+                for t_behaviors in sub_partition[group][t_behaviors]:
+                    if t_behaviors not in new_partition[new_groups]:
+                        new_partition[new_groups][t_behaviors] = []
         return new_partition
 
     def minimization(self):
