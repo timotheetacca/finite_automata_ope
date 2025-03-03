@@ -161,11 +161,14 @@ class finite_automata:
     def split_groups_minimization(self, partition):
         # The value inside the state dictionary would be a list corresponding to the groups their next states belong to
         for group in partition.keys():
+            # Look inside all groups of the partition, the next_states each state reach depending on the symbol
             for symbol in self.list_symbols:
                 for state in partition[group].keys():
                     for next_state in self.dict_transitions[state][symbol]:
+                        # For each next state, look for the group it belongs to
                         for group_check in partition.keys():
                             if next_state in partition[group_check]:
+                                # Add to the list of values for the dictionary state the group
                                 partition[group][state].append(group_check)
         # Creation of a partition where each state and its transition behavior are inversed
         # Used to know which states should be splitted for the next step
