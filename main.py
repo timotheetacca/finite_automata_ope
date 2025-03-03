@@ -20,7 +20,7 @@ def main():
 
     fa.get_csv_from_fa(csv_filepath)
 
-    fa.final_partition()
+    fa.final_partition_minimization()
 
 if __name__ == "__main__":
     main()

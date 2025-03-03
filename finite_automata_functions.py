@@ -158,7 +158,7 @@ class finite_automata:
         for i in range(self.nb_symbols):
             self.dict_sink["P"][self.list_symbols[i]] = ["P"]
 
-    def split(self, partition):
+    def split_groups_minimization(self, partition):
         # The value inside the state dictionary would be a list corresponding to the groups their next states belong to
         for group in partition.keys():
             for symbol in self.list_symbols:
@@ -190,7 +190,7 @@ class finite_automata:
                         new_partition[new_groups][t_behaviors] = []
         return new_partition
 
-    def final_partition(self):
+    def final_partition_minimization(self):
         # Check if the FA is deterministic and complete before minimizing it
         if not self.is_deterministic():
             print("Your automaton is not deterministic ⚠\n")
@@ -212,16 +212,18 @@ class finite_automata:
                 partition["T"][state] = []
             else:
                 partition["NT"][state] = []
-        new_partition = self.split(partition)
-        """
-        MUST REPEAT UNTIL NEW_PARTITION == PARTITION
-        while True:
-            if new_partition == partition:
-                return new_partition
-            partition=new_partition
-            new_partition = self.split(new_partition)
-        """
-        return new_partition
+        new_partition = self.split_groups_minimization(partition)
+
+        # MUST REPEAT UNTIL NEW_PARTITION == PARTITION
+        # while True:
+            # if new_partition == partition:
+                # return new_partition
+            # partition=new_partition
+            # new_partition = self.split(new_partition)
+
+        # After that, create a new csv with the new partition
+        # Must replace in the original csv each state with its group in the partition
+        # /!\ Delete all useless lines (duplicates)
 
     def determinization(self):
         # If the old automaton was complete, the new one will also be complete
