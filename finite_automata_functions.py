@@ -158,6 +158,63 @@ class finite_automata:
         for i in range(self.nb_symbols):
             self.dict_sink["P"][self.list_symbols[i]] = ["P"]
 
+    def final_partition(self):
+        # Find list of non-terminal states
+        list_non_final_states=[]
+        for state in self.dict_transitions.keys():
+            if state not in self.list_final_states:
+                list_non_final_states.append(state)
+        # Initialization of the partition
+        # Each group would be a dictionary, as well as all states in those groups
+        partition = {
+            "T":{},
+            "NT":{},
+        }
+        for state in self.dict_transitions.keys():
+            if state in self.list_final_states:
+                partition["T"][state] = []
+            else:
+                partition["NT"][state]=[]
+        # The value inside the state dictionary would be a list corresponding to the groups their next states belong to
+        for group in partition.keys():
+            for symbol in self.list_symbols:
+                for state in partition[group].keys():
+                    for next_state in self.dict_transitions[state][symbol]:
+                        if next_state in partition["T"]:
+                            partition[group][state].append("T")
+                        elif next_state in partition["NT"]:
+                            partition[group][state].append("NT")
+        # Creation of a partition where each state and its transition behavior are inversed
+        # Used to know which states should be splitted for the next step
+        sub_partition = {
+            "T": {},
+            "NT": {},
+        }
+        for group in partition.keys():
+            for state in partition[group].keys():
+                t_behaviors = ",".join(partition[group][state])
+                if t_behaviors not in sub_partition[group]:
+                   sub_partition[group][t_behaviors] = []
+                sub_partition[group][t_behaviors].append(state)
+        new_partition={}
+        index = 1
+        for group in partition.keys():
+            for t_behaviors in sub_partition[group].keys():
+                # The newly generated groups would be called with letters, starting from A
+                new_groups = chr(64 + index)
+                index+=1
+                new_partition[new_groups] = sub_partition[group][t_behaviors]
+        return new_partition
+
+    def minimization(self):
+        # Check if the FA is deterministic and complete before minimizing it
+        if not self.is_deterministic():
+            print("Your automaton is not deterministic ⚠\n")
+            return
+        if not self.is_complete():
+            print("Your automaton is not complete ⚠\n")
+            return
+
     def determinization(self):
         # If the old automaton was complete, the new one will also be complete
         old_fa_was_completed = self.is_complete()
