@@ -22,7 +22,7 @@ def main():
 
     print(fa.dict_transitions)
 
-    #fa.final_partition_minimization()
+    fa.final_partition_minimization()
 
 if __name__ == "__main__":
     main()
