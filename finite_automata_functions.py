@@ -1,6 +1,7 @@
 import csv, os
 import copy
 
+
 class finite_automata:
     def __init__(self, filepath):
         self.filepath = filepath
@@ -15,7 +16,6 @@ class finite_automata:
         # Of the form : {key: {symbol_1: [ ], symbol_2: [ ] }}
         self.dict_transitions = {}
 
-        self.dict_sink = {}
         self.list_symbols = []
 
     def get_fa_information(self):
@@ -74,26 +74,27 @@ class finite_automata:
 
             # Write each state to the CSV, marking initial states with '>' and final states with '<'
             for state in self.dict_transitions.keys():
-                if state in self.list_initial_states:
-                    row = [">", state]
-                elif state in self.list_final_states:
-                    row = ["<", state]
-                else:
-                    row = ["", state]
-
-                for symbol in self.list_symbols:
-                    # Get the list of transitions for the symbol of a state
-                    transition = self.dict_transitions[state].get(symbol)
-
-                    if len(transition) > 0:
-                        # Join the list into a single string separated by commas if there is more than 1 element
-                        row.append(",".join(sorted(transition)))
+                if state != "P":
+                    if state in self.list_initial_states:
+                        row = [">", state]
+                    elif state in self.list_final_states:
+                        row = ["<", state]
                     else:
-                        row.append("--")
+                        row = ["", state]
 
-                writer.writerow(row)
+                    for symbol in self.list_symbols:
+                        # Get the list of transitions for the symbol of a state
+                        transition = self.dict_transitions[state].get(symbol)
 
-            if self.dict_sink != {}:
+                        if len(transition) > 0:
+                            # Join the list into a single string separated by commas if there is more than 1 element
+                            row.append(",".join(sorted(transition)))
+                        else:
+                            row.append("--")
+                    writer.writerow(row)
+
+            # Write the sink line at the end of the csv
+            if "P" in self.dict_transitions.keys():
                 row = ["", "P"]
                 for i in self.list_symbols:
                     # For the sink, every transition goes to itself
@@ -154,18 +155,21 @@ class finite_automata:
                     self.dict_transitions[state][symbol] = ["P"]
 
         # Add the sink state
-        self.dict_sink["P"] = {}
+        self.dict_transitions["P"] = {}
         for i in range(self.nb_symbols):
-            self.dict_sink["P"][self.list_symbols[i]] = ["P"]
+            self.dict_transitions["P"][self.list_symbols[i]] = ["P"]
 
     def split_groups_minimization(self, partition):
         # The value inside the state dictionary would be a list corresponding to the groups their next states belong to
         for group in partition.keys():
+            # Look inside all groups of the partition, the next_states each state reach depending on the symbol
             for symbol in self.list_symbols:
                 for state in partition[group].keys():
                     for next_state in self.dict_transitions[state][symbol]:
+                        # For each next state, look for the group it belongs to
                         for group_check in partition.keys():
                             if next_state in partition[group_check]:
+                                # Add to the list of values for the dictionary state the group
                                 partition[group][state].append(group_check)
         # Creation of a partition where each state and its transition behavior are inversed
         # Used to know which states should be splitted for the next step
@@ -174,15 +178,15 @@ class finite_automata:
             for state in partition[group].keys():
                 t_behaviors = ",".join(partition[group][state])
                 if t_behaviors not in sub_partition[group]:
-                   sub_partition[group][t_behaviors] = []
+                    sub_partition[group][t_behaviors] = []
                 sub_partition[group][t_behaviors].append(state)
-        new_partition={}
+        new_partition = {}
         index = 1
         for group in partition.keys():
             for t_behaviors in sub_partition[group].keys():
                 # The newly generated groups would be called with letters, starting from A
                 new_groups = chr(64 + index)
-                index+=1
+                index += 1
                 if new_groups not in new_partition:
                     new_partition[new_groups] = {}
                 for t_behaviors in sub_partition[group][t_behaviors]:
@@ -216,10 +220,10 @@ class finite_automata:
 
         # MUST REPEAT UNTIL NEW_PARTITION == PARTITION
         # while True:
-            # if new_partition == partition:
-                # return new_partition
-            # partition=new_partition
-            # new_partition = self.split(new_partition)
+        # if new_partition == partition:
+        # return new_partition
+        # partition=new_partition
+        # new_partition = self.split(new_partition)
 
         # After that, create a new csv with the new partition
         # Must replace in the original csv each state with its group in the partition
@@ -238,8 +242,9 @@ class finite_automata:
             new_initial_state = "|".join(sorted(self.list_initial_states))
             self.list_initial_states = [new_initial_state]
             self.nb_initial_states = 1
-            self.dict_transitions[new_initial_state] = {}
+
             # Initialize transitions for the new initial state
+            self.dict_transitions[new_initial_state] = {}
             for symbol in self.list_symbols:
                 self.dict_transitions[new_initial_state][symbol] = []
 
@@ -252,56 +257,50 @@ class finite_automata:
                             self.dict_transitions[new_initial_state][symbol].append(transition)
 
         # Remove all the old initial states to avoid creating new states from a transition of initial states
-        states_to_process = []
-        for s in self.dict_transitions:
-            if s not in old_initial_states:
-                states_to_process.append(s)
+        states_to_process = list(self.dict_transitions.keys())
+        for state in old_initial_states:
+            if state in states_to_process:
+                states_to_process.remove(state)
 
         new_states = []
 
         # Process only the given states
         for state in states_to_process:
             new_final_state = False
+
+            # Check if the current state is a final state
+            for sub_state in state.split("|"):
+                if sub_state in self.list_final_states:
+                    new_final_state = True
+
+            # If the current state is a final state, add it to the list of final states
+            if new_final_state and state not in self.list_final_states:
+                self.list_final_states.append(state)
+                self.nb_final_states += 1
+
+            # Process each symbol
             for symbol in self.list_symbols:
                 transitions = []
 
-                # Split the combined states into sub states
+                # Collect all transitions for the current state and symbol
                 for sub_state in state.split("|"):
-                    # If one of the sub states is a final state, flag it to make the new state a final state
-                    if sub_state in self.list_final_states:
-                        new_final_state = True
-
-                    # Collect all transitions for the current state and symbol
                     for transition in self.dict_transitions[sub_state][symbol]:
                         if transition != "P" and transition not in transitions:
                             transitions.append(transition)
 
-                # If a new final state is created, add it to the list of final states
-                if new_final_state and state not in self.list_final_states:
-                    self.list_final_states.append(state)
-                    self.nb_final_states += 1
-
-                # Combine transitions into a single state if there are multiple transitions
-                if len(transitions) > 1:
+                # If there are transitions, create a new combined state
+                if transitions:
                     new_state = "|".join(sorted(transitions))
+
+                    # If the new state doesn't exist, add it to the dictionary and process it later
                     if new_state not in self.dict_transitions:
                         new_states.append(new_state)
-                        # Initialize the new state with empty transitions
                         self.dict_transitions[new_state] = {}
-                        for symbol in self.list_symbols:
-                            self.dict_transitions[new_state][symbol] = []
+                        for new_state_symbol in self.list_symbols:
+                            self.dict_transitions[new_state][new_state_symbol] = []
 
-                        # Check transitions from the components of the new state
-                        for sub_state in transitions:
-                            for symbol in self.list_symbols:
-                                for transition in self.dict_transitions[sub_state][symbol]:
-                                    if transition != "P" and transition not in self.dict_transitions[new_state][symbol]:
-                                        self.dict_transitions[new_state][symbol].append(transition)
-
-                    # Update the current state transition to the combined state
+                    # Update the current state's transition to the new combined state
                     self.dict_transitions[state][symbol] = [new_state]
-                else:
-                    self.dict_transitions[state][symbol] = transitions
 
         # Recursively process new combined states
         if new_states:
@@ -315,23 +314,20 @@ class finite_automata:
             self.completion()
 
     def standardization(self):
-        dict_transition_initial_state = {"i" : {}}
+        dict_transition_initial_state = {"i": {}}
         for symbol in self.list_symbols:
             dict_transition_initial_state["i"][symbol] = []
-            
-        
+
         for initial_state in self.list_initial_states:
             for symbol in self.list_symbols:
                 for state_to_add in self.dict_transitions[initial_state][symbol]:
                     if state_to_add not in dict_transition_initial_state["i"][symbol]:
                         dict_transition_initial_state["i"][symbol].append(state_to_add)
-                        
-              
+
         self.nb_states += 1
         self.nb_initial_states = 1
         self.list_initial_states = ["i"]
         self.dict_transitions["i"] = dict_transition_initial_state["i"]
-
 
     def cleanup_original_states(self):
         # List to store reachable states
