@@ -159,76 +159,6 @@ class finite_automata:
         for i in range(self.nb_symbols):
             self.dict_transitions["P"][self.list_symbols[i]] = ["P"]
 
-    def split_groups_minimization(self, partition):
-        # The value inside the state dictionary would be a list corresponding to the groups their next states belong to
-        for group in partition.keys():
-            # Look inside all groups of the partition, the next_states each state reach depending on the symbol
-            for symbol in self.list_symbols:
-                for state in partition[group].keys():
-                    for next_state in self.dict_transitions[state][symbol]:
-                        # For each next state, look for the group it belongs to
-                        for group_check in partition.keys():
-                            if next_state in partition[group_check]:
-                                # Add to the list of values for the dictionary state the group
-                                partition[group][state].append(group_check)
-        # Creation of a partition where each state and its transition behavior are inversed
-        # Used to know which states should be splitted for the next step
-        sub_partition = {key: {} for key in partition.keys()}
-        for group in partition.keys():
-            for state in partition[group].keys():
-                t_behaviors = ",".join(partition[group][state])
-                if t_behaviors not in sub_partition[group]:
-                    sub_partition[group][t_behaviors] = []
-                sub_partition[group][t_behaviors].append(state)
-        new_partition = {}
-        index = 1
-        for group in partition.keys():
-            for t_behaviors in sub_partition[group].keys():
-                # The newly generated groups would be called with letters, starting from A
-                new_groups = chr(64 + index)
-                index += 1
-                if new_groups not in new_partition:
-                    new_partition[new_groups] = {}
-                for t_behaviors in sub_partition[group][t_behaviors]:
-                    if t_behaviors not in new_partition[new_groups]:
-                        new_partition[new_groups][t_behaviors] = []
-        return new_partition
-
-    def final_partition_minimization(self):
-        # Check if the FA is deterministic and complete before minimizing it
-        if not self.is_deterministic():
-            print("Your automaton is not deterministic ⚠\n")
-            return
-        if not self.is_complete():
-            print("Your automaton is not complete ⚠\n")
-            return
-        # 1st Step
-        list_non_final_states = []
-        for state in self.dict_transitions.keys():
-            if state not in self.list_final_states:
-                list_non_final_states.append(state)
-        partition = {
-            "T": {},
-            "NT": {},
-        }
-        for state in self.dict_transitions.keys():
-            if state in self.list_final_states:
-                partition["T"][state] = []
-            else:
-                partition["NT"][state] = []
-        new_partition = self.split_groups_minimization(partition)
-
-        # MUST REPEAT UNTIL NEW_PARTITION == PARTITION
-        # while True:
-        # if new_partition == partition:
-        # return new_partition
-        # partition=new_partition
-        # new_partition = self.split(new_partition)
-
-        # After that, create a new csv with the new partition
-        # Must replace in the original csv each state with its group in the partition
-        # /!\ Delete all useless lines (duplicates)
-
     def determinization(self):
         # If the old automaton was complete, the new one will also be complete
         old_fa_was_completed = self.is_complete()
@@ -312,6 +242,75 @@ class finite_automata:
         # If the old automaton was complete, complete the new one
         if old_fa_was_completed:
             self.completion()
+
+    def split_groups_minimization(self, partition):
+        # The value inside the state dictionary would be a list corresponding to the groups their next states belong to
+        for group in partition.keys():
+            # Look inside all groups of the partition, the next_states each state reach depending on the symbol
+            for symbol in self.list_symbols:
+                for state in partition[group].keys():
+                    for next_state in self.dict_transitions[state][symbol]:
+                        # For each next state, look for the group it belongs to
+                        for group_check in partition.keys():
+                            if next_state in partition[group_check]:
+                                # Add to the list of values for the dictionary state the group
+                                partition[group][state].append(group_check)
+        # Creation of a partition where each state and its transition behavior are inversed
+        # Used to know which states should be splitted for the next step
+        sub_partition = {key: {} for key in partition.keys()}
+        for group in partition.keys():
+            for state in partition[group].keys():
+                t_behaviors = ",".join(partition[group][state])
+                if t_behaviors not in sub_partition[group]:
+                    sub_partition[group][t_behaviors] = []
+                sub_partition[group][t_behaviors].append(state)
+        new_partition = {}
+        index = 1
+        for group in partition.keys():
+            for t_behaviors in sub_partition[group].keys():
+                # The newly generated groups would be called with letters, starting from A
+                new_groups = chr(64 + index)
+                index += 1
+                if new_groups not in new_partition:
+                    new_partition[new_groups] = {}
+                for t_behaviors in sub_partition[group][t_behaviors]:
+                    if t_behaviors not in new_partition[new_groups]:
+                        new_partition[new_groups][t_behaviors] = []
+        return new_partition
+
+    def final_partition_minimization(self):
+        # Check if the FA is deterministic and complete before minimizing it
+        if not self.is_deterministic():
+            print("Your automaton is not deterministic ⚠\n")
+            return
+        if not self.is_complete():
+            print("Your automaton is not complete ⚠\n")
+            return
+        # 1st Step
+        list_non_final_states = []
+        for state in self.dict_transitions.keys():
+            if state not in self.list_final_states:
+                list_non_final_states.append(state)
+        partition = {
+            "T": {},
+            "NT": {},
+        }
+        for state in self.dict_transitions.keys():
+            if state in self.list_final_states:
+                partition["T"][state] = []
+            else:
+                partition["NT"][state] = []
+        # Recursion on splitting the states if not same pattern
+        new_partition = self.split_groups_minimization(partition)
+        while True:
+            if new_partition.keys() == partition.keys():
+                return new_partition
+            partition=new_partition
+            new_partition = self.split_groups_minimization(new_partition)
+
+        # After that, create a new csv with the new partition
+        # Must replace in the original csv each state with its group in the partition
+        # /!\ Delete all useless lines (duplicates)
 
     def standardization(self):
         dict_transition_initial_state = {"i": {}}
