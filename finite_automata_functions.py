@@ -255,27 +255,34 @@ class finite_automata:
                             if next_state in partition[group_check]:
                                 # Add to the list of values for the dictionary state the group
                                 partition[group][state].append(group_check)
-        # Creation of a partition where each state and its transition behavior are inversed
-        # Used to know which states should be splitted for the next step
+        # Creation of an intermediary partition, having the same groups as the previous one
         sub_partition = {key: {} for key in partition.keys()}
+        # Look inside each group
         for group in partition.keys():
             for state in partition[group].keys():
+                # For each state, join together in a string the groups the next states belong to
                 t_behaviors = ",".join(partition[group][state])
+                # If this pattern doesn't exist, we put it as a new key
                 if t_behaviors not in sub_partition[group]:
                     sub_partition[group][t_behaviors] = []
+                # The state having that one pattern would then become the value to that key
                 sub_partition[group][t_behaviors].append(state)
+        # Create new partition for next step
         new_partition = {}
         index = 1
+        # Fill the new partition depending on the pattern
         for group in partition.keys():
             for t_behaviors in sub_partition[group].keys():
                 # The newly generated groups would be called with letters, starting from A
                 new_groups = chr(64 + index)
                 index += 1
+                # Create keys for each new groups
                 if new_groups not in new_partition:
                     new_partition[new_groups] = {}
-                for t_behaviors in sub_partition[group][t_behaviors]:
-                    if t_behaviors not in new_partition[new_groups]:
-                        new_partition[new_groups][t_behaviors] = []
+                # Fill the newly created keys with the states having the same pattern
+                for state in sub_partition[group][t_behaviors]:
+                    if state not in new_partition[new_groups]:
+                        new_partition[new_groups][state] = []
         return new_partition
 
     def final_partition_minimization(self):
@@ -300,13 +307,16 @@ class finite_automata:
                 partition["T"][state] = []
             else:
                 partition["NT"][state] = []
+        print(partition)
         # Recursion on splitting the states if not same pattern
         new_partition = self.split_groups_minimization(partition)
         while True:
+            print(new_partition)
             if new_partition.keys() == partition.keys():
                 return new_partition
             partition=new_partition
             new_partition = self.split_groups_minimization(new_partition)
+        print(new_partition)
 
         # After that, create a new csv with the new partition
         # Must replace in the original csv each state with its group in the partition
