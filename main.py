@@ -12,10 +12,6 @@ def main():
     fa.is_deterministic(True)
     fa.is_complete(True)
 
-    fa.standardization()
-
-    fa.get_csv_from_fa(csv_filepath)
-
     fa.completion()
 
     fa.get_csv_from_fa(csv_filepath)
@@ -23,8 +19,6 @@ def main():
     fa.determinization()
 
     fa.get_csv_from_fa(csv_filepath)
-
-
 
 if __name__ == "__main__":
     main()
