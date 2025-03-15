@@ -277,10 +277,27 @@ class finite_automata:
         self.dict_transitions = new_dict_transitions
 
     def determinization_and_completion(self, csv_filepath):
-        if not self.is_complete():
-            self.completion()
-
         if not self.is_deterministic():
             self.determinization()
 
+        if not self.is_complete():
+            self.completion()
+
         self.get_csv_from_fa(csv_filepath)
+
+    def complementary(self):
+        if not self.is_deterministic():
+            self.determinization()
+
+        if not self.is_complete():
+            self.completion()
+
+        # Save all the old final states and erase the final state list
+        old_list_final_states = self.list_final_states
+        self.list_final_states = []
+        for state in self.dict_transitions.keys():
+            # If the current state was a final state, it becomes a normal state and vice versa
+            if state not in old_list_final_states and state not in self.list_initial_states:
+                self.list_final_states.append(state)
+
+

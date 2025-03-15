@@ -1,5 +1,6 @@
 from finite_automata_functions import finite_automata
 
+
 def main():
     filepath = "fa.txt"
     csv_filepath = "fa_csv.csv"
@@ -11,7 +12,9 @@ def main():
     fa.is_deterministic(True)
     fa.is_complete(True)
 
-    fa.determinization_and_completion(csv_filepath)
+    fa.complementary()
+    fa.get_csv_from_fa(csv_filepath)
+
 
 if __name__ == "__main__":
     main()
