@@ -353,7 +353,9 @@ class finite_automata:
             for new_state in new_transitions.keys():
                 for state in new_state.split(","):
                     # Check if the state is an initial or final state and mark it accordingly
-                    if state in self.list_initial_states:
+                    if state in self.list_initial_states and state in self.list_final_states:
+                        row = ["=", new_state]
+                    elif state in self.list_initial_states:
                         row = [">", new_state]
                     elif state in self.list_final_states:
                         row = ["<", new_state]
