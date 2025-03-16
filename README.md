@@ -1,108 +1,97 @@
-# Finite Automata Library
 
-## 1. **Class Attributes**
-- `file_path`: *(str)* Path to the automaton .txt
-- `nb_symbols`: *(int)* Number of symbols in the automaton
-- `nb_states`: *(int)* Number of states in the automaton
-- `nb_initial_states`: *(int)* Number of initial states
-- `list_initial_states`: *(list of str)* List of initial states
-- `nb_final_states`: *(int)* Number of final states
-- `list_final_states`: *(list of str)* List of final states
-- `nb_transitions`: *(int)* Total number of transitions
-- `list_symbols`: *(list of str)* List of symbols in the automaton
-- `dict_transitions`: *(dict)* Mapping of states to their transitions. Each state is a key, and its value is also adictionary where each symbol is a list of destination states
+# [Finite Automata Operations Project](https://github.com/timotheetacca/finite_automata_ope)
+> ###### 2025-L2 EFREI TACCA Timothée, TRAN Kim-Lan, LOESCH Thomas, OUDIN Julien, MOINDJIE Daïf
 
-  ```python
-  "0": {"a": ["1", "0"],  "b": ["0"]},
-  "1": { "a": ["1"],"b": []}
- 
-  ```
+This project is designed to perform various operations on Finite Automata (FA), including reading, displaying, standardizing, determinizing, completing, minimizing, and testing word recognition. 
+## Project Overview
+
+The program is divided into several stages:
+
+1. **Reading a FA**: The program reads a FA from a text file, stores it in memory, and displays it on the screen
+2. **Displaying FA Information**: The program checks if the FA is deterministic, deterministic and complete, or standard, and displays the results
+3. **Standardization**: If the FA is not standard, the program can standardize it on demand
+4. **Determinization and completion**: If the FA is not complete or deterministic, the program can convert it into an equivalent complete deterministic FA
+5. **Minimization**: The program can minimize a complete deterministic FA
+6. (TO BE DONE) **Word Recognition**: The program can test if a given word is recognized by the FA
+7. **Complementary Language**: The program can create an automaton the complementary language of the given FA
+
+## How to Use the Program
+
+### Prerequisites
+
+- [Python 3.x](https://www.python.org/)
+- `csv` and `os` libraries *(included in Python standard library)*
+
+- ## Download
+
+### Git clone
+You have 2 options to install our project. You can install the project using git clone :
+
+```
+git clone https://github.com/timotheetacca/finite_automata_ope.git
+```
+
+### Install
+
+You can also directly install the latest release of our project from [here](https://github.com/timotheetacca/finite_automata_ope)
+
+![download_img](https://github.com/user-attachments/assets/a29cc643-5616-44cf-aa5c-f30e097818cb)
 
 
-- `dict_sink`: *(dict)* Transitions for the sink state *(je l'ai séparé car si on veut ajouter des états, il faudrait supprimer le sink state puis la re-rajouter etc..)*
-  Structure:  
-  ```python
-  "P": "a": ["P"],"b": ["P"]
-  ```
+### Example FA File Format
 
----
+The text file representing an automaton should have the following structure:
+``` 
+2       
+5       
+1 0      
+1 4       
+6         
+0 a 1     
+0 a 0
+0 b 0
+1 b 2
+2 a 3
+3 a 4
 
-## **Functions**
 
-###  **`get_fa_information()`**
-Reads the automaton file, extracts  information to create an object from the class
+```
 
----
 
-###  **`get_csv_from_fa(output_filepath)`**
-Generates a CSV file of the automaton
+- **Line 1**: Number of symbols in the automaton's alphabet.
+- **Line 2**: Number of states.
+- **Line 3**: Number of initial states, followed by their numeric labels.
+- **Line 4**: Number of final states, followed by their numeric labels.
+- **Line 5**: Number of transitions.
+- **Lines 6 and beyond**: Transitions in the form `<source state> <symbol> <target state>`.
 
----
 
-###  **`is_deterministic()`**
-Checks if the automaton is deterministic. 
+### Example Usage
 
-- **Output**:
-  - Returns `False` with a message if the automaton is non-deterministic
-  - Returns `True` if deterministic
+```python
+# Initialize the FA with a file path
+fa = finite_automata("fa_example.txt")
 
----
+# Read and display the FA
+fa.get_fa_information()
+fa.get_csv_from_fa("fa_output.csv")
 
-### **`is_complete()`**
-Checks if the automaton is complete
-- **Output**:
-  - Returns `False` with a message if the automaton is incomplete
-  - Returns `True` if complete
+# Check if the FA is deterministic
+fa.is_deterministic(display=True)
 
----
+# Standardize the FA if it is not standard
+if not fa.is_standard():
+    fa.standardization()
 
-### **`completion()`**
-Completes the automaton by filling `dict_transitions` and replacing all the empty transitions with P
+# Determinize and complete the FA
+fa.determinization_and_completion("determinized_fa.csv")
 
----
+# Minimize the FA
+fa.minimized_fa()
 
-### 6. **`determinization_and_completion_automaton(states_to_process=None)`**
-Determinizes and completes the automaton
-- **How it works**:
-  - Combines  transitions into new "combined states" if there are more than 1 transition
-  - Recursively processes the new combined states until no more can be created
-- **Input**: 
-  - `states_to_process`: *(list of str)* Specific states to determinize (optional, espacially for start)
+# Create a complementary FA
+fa.complementary()
+``` 
+## Feedback
 
----
-
-## **How to make it work**
-
-1. **Initialization**:  
-   Create an object of the `finite_automata` 
-   ```python
-   fa = finite_automata("fa.txt")
-   ```
-
-2. **Read automaton data**:  
-    Get all the informations from the .txt
-   ```python
-   fa.get_fa_information()
-   ```
-
-3. **Check if deterministic or complete**:  
-   ```python
-   fa.is_deterministic():
-   fa.is_complete():
-   ```
-
-4. **Completion**:
-   ```python
-   fa.completion()
-   ```
-
-5. **eterminization**:
-   ```python
-   fa.determinization_and_completion_automaton()
-   ```
-
-6. **Generate a CSV**:  
-    If there is no csv in the folder, it will create it
-   ```python
-   fa.get_csv_from_fa(fa_csv.csv)
-   ```
+If you have any feedback, please reach out to us at timothee.tacca@efrei.net, kim-lan.tran@efrei.net,  julien.oudin@efrei.net ,thomas.loesch@efrei.net or daif.moindjie@efrei.net
