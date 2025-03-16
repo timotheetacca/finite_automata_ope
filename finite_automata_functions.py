@@ -10,8 +10,6 @@ class finite_automata:
         self.list_initial_states = []
         self.nb_final_states = 0
         self.list_final_states = []
-
-        # Of the form : {key: {symbol_1: [ ], symbol_2: [ ] }}
         self.dict_transitions = {}
         self.list_symbols = []
 
@@ -96,6 +94,68 @@ class finite_automata:
                     # For the sink, every transition goes to itself
                     row.append("P")
                 writer.writerow(row)
+
+    def get_fa_information_from_csv(self, csv_filepath):
+        with open(csv_filepath, "r", newline="") as csvfile:
+            reader = list(csv.reader(csvfile, delimiter=";"))
+
+            # Extract symbols from the header starting from the third column
+            self.list_symbols = reader[0][2:]
+            self.nb_symbols = len(self.list_symbols)
+
+            # Set the empty dictionary
+            self.dict_transitions = {}
+            for row in reader[1:]:
+                state = row[1]
+                self.dict_transitions[state] = {}
+
+            for state in self.dict_transitions:
+                for symbol in self.list_symbols:
+                    self.dict_transitions[state][symbol] = []
+
+            # Get initial and final states
+            self.list_initial_states = []
+            self.list_final_states = []
+            for row in reader[1:]:
+                state_marker = row[0]
+                state = row[1]
+
+                if state_marker == ">" or state_marker == "=":
+                    self.list_initial_states.append(state)
+                if state_marker == "<" or state_marker == "=":
+                    self.list_final_states.append(state)
+
+                # Get the transitions information
+                for i in range(self.nb_symbols):
+                    symbol = self.list_symbols[i]
+                    transition = row[2 + i]
+                    if transition != "--":
+                        self.dict_transitions[state][symbol] = transition.split(",")
+
+            # Update counts
+            self.nb_initial_states = len(self.list_initial_states)
+            self.nb_final_states = len(self.list_final_states)
+
+    def write_fa_to_txt(self, txt_filepath):
+        with open(txt_filepath, "w") as txtfile:
+            txtfile.write(f"{self.nb_symbols}\n")
+            txtfile.write(f"{len(self.dict_transitions)}\n")
+            txtfile.write(f"{self.nb_initial_states} {' '.join(self.list_initial_states)}\n")
+            txtfile.write(f"{self.nb_final_states} {' '.join(self.list_final_states)}\n")
+
+            # Get all the transitions
+            transitions = []
+            for state in self.dict_transitions:
+                for symbol in self.list_symbols:
+                    for transition in self.dict_transitions[state][symbol]:
+                        transitions.append((state, symbol, transition))
+
+            # Write umber of transitions
+            txtfile.write(f"{len(transitions)}\n")
+
+            # Write each transition
+            for state, symbol, transition in transitions:
+                txtfile.write(f"{state} {symbol} {transition}\n")
 
     def is_deterministic(self, display=False):
         # Check if the automaton has more than 1 initial state, if yes, the automaton is not deterministic
