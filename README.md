@@ -22,8 +22,7 @@ The program is divided into several stages:
 - [Python 3.x](https://www.python.org/)
 - `csv` and `os` libraries *(included in Python standard library)*
 
-- ## Download
-
+## Download
 ### Git clone
 You have 2 options to install our project. You can install the project using git clone :
 
@@ -53,8 +52,6 @@ The text file representing an automaton should have the following structure:
 1 b 2
 2 a 3
 3 a 4
-
-
 ```
 
 
