@@ -12,8 +12,8 @@ The program is divided into several stages:
 3. **Standardization**: If the FA is not standard, the program can standardize it on demand
 4. **Determinization and completion**: If the FA is not complete or deterministic, the program can convert it into an equivalent complete deterministic FA
 5. **Minimization**: The program can minimize a complete deterministic FA
-6. (TO BE DONE) **Word Recognition**: The program can test if a given word is recognized by the FA
-7. **Complementary Language**: The program can create an automaton the complementary language of the given FA
+6. **Word Recognition**: The program can test if a given word is recognized by the FA
+7. **Complementary Language**: The program can create a complementary automaton of the given FA
 
 ## How to Use the Program
 
