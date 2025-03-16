@@ -2,7 +2,7 @@
 # [Finite Automata Operations Project](https://github.com/timotheetacca/finite_automata_ope)
 > ###### 2025-L2 EFREI TACCA Timothée, TRAN Kim-Lan, LOESCH Thomas, OUDIN Julien, MOINDJIE Daïf
 
-This project is designed to perform various operations on Finite Automata (FA), including reading, displaying, standardizing, determinizing, completing, minimizing, and testing word recognition. 
+This project is designed to perform various operations on Finite Automata (FA), including reading, displaying, standardizing, determinizing, completing, minimizing, and testing word recognition
 ## Project Overview
 
 The program is divided into several stages:
@@ -55,12 +55,12 @@ The text file representing an automaton should have the following structure:
 ```
 
 
-- **Line 1**: Number of symbols in the automaton's alphabet.
-- **Line 2**: Number of states.
-- **Line 3**: Number of initial states, followed by their numeric labels.
-- **Line 4**: Number of final states, followed by their numeric labels.
-- **Line 5**: Number of transitions.
-- **Lines 6 and beyond**: Transitions in the form `<source state> <symbol> <target state>`.
+- **Line 1**: Number of symbols in the automaton's alphabet
+- **Line 2**: Number of states
+- **Line 3**: Number of initial states, followed by the initial states separeted by space
+- **Line 4**: Number of final states followed by the final states separeted by space
+- **Line 5**: Number of transitions
+- **Lines 6 and beyond**: Transitions in the form `<source state> <symbol> <target state>`
 
 
 ### Example Usage
