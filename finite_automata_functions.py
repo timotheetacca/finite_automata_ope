@@ -1,4 +1,5 @@
-import csv, os, copy
+import csv
+import os
 
 class finite_automata:
     def __init__(self, filepath):
@@ -179,7 +180,8 @@ class finite_automata:
             for symbol in self.list_symbols:
                 if not self.dict_transitions[state][symbol]:
                     if display:
-                        print(f"Your automaton is not complete. State {state} has no transitions for symbol '{symbol}' ⚠ \n")
+                        print(
+                            f"Your automaton is not complete. State {state} has no transitions for symbol '{symbol}' ⚠ \n")
                     return False
         return True
 
@@ -357,7 +359,7 @@ class finite_automata:
         while True:
             if new_partition.keys() == partition.keys():
                 return new_partition
-            partition=new_partition
+            partition = new_partition
             new_partition = self.split_groups_minimization(new_partition)
 
     def minimized_fa(self):
@@ -420,7 +422,7 @@ class finite_automata:
                     # Write the row only if the state hasn't been written already
                     if new_state not in written_states:
                         writer.writerow(row)
-                        written_states.append(new_state) # Mark this state as written
+                        written_states.append(new_state)  # Mark this state as written
 
         print("The minimized automaton has been written in " + new_csv_filepath)
 
@@ -486,5 +488,3 @@ class finite_automata:
             # If the current state was a final state, it becomes a normal state and vice versa
             if state not in old_list_final_states and state not in self.list_initial_states:
                 self.list_final_states.append(state)
-
-
