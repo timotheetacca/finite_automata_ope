@@ -1,6 +1,4 @@
-import csv
-import os
-
+import csv, os, copy
 
 class finite_automata:
     def __init__(self, filepath):
@@ -296,6 +294,135 @@ class finite_automata:
         # If the old automaton was complete, complete the new one
         if old_fa_was_completed:
             self.completion()
+
+    def split_groups_minimization(self, partition):
+        # The value inside the state dictionary would be a list corresponding to the groups their next states belong to
+        for group in partition.keys():
+            # Look inside all groups of the partition, the next_states each state reach depending on the symbol
+            for symbol in self.list_symbols:
+                for state in partition[group].keys():
+                    for next_state in self.dict_transitions[state][symbol]:
+                        # For each next state, look for the group it belongs to
+                        for group_check in partition.keys():
+                            if next_state in partition[group_check]:
+                                # Add to the list of values for the dictionary state the group
+                                partition[group][state].append(group_check)
+        # Creation of an intermediary partition, having the same groups as the previous one
+        sub_partition = {key: {} for key in partition.keys()}
+        # Look inside each group
+        for group in partition.keys():
+            for state in partition[group].keys():
+                # For each state, join together in a string the groups the next states belong to
+                t_behaviors = ",".join(partition[group][state])
+                # If this pattern doesn't exist, we put it as a new key
+                if t_behaviors not in sub_partition[group]:
+                    sub_partition[group][t_behaviors] = []
+                # The state having that one pattern would then become the value to that key
+                sub_partition[group][t_behaviors].append(state)
+        # Create new partition for next step
+        new_partition = {}
+        index = 1
+        # Fill the new partition depending on the pattern
+        for group in partition.keys():
+            for t_behaviors in sub_partition[group].keys():
+                # The newly generated groups would be called with letters, starting from A
+                new_groups = chr(64 + index)
+                index += 1
+                # Create keys for each new groups
+                if new_groups not in new_partition:
+                    new_partition[new_groups] = {}
+                # Fill the newly created keys with the states having the same pattern
+                for state in sub_partition[group][t_behaviors]:
+                    if state not in new_partition[new_groups]:
+                        new_partition[new_groups][state] = []
+        return new_partition
+
+    def final_partition_minimization(self):
+        # 1st Step
+        list_non_final_states = []
+        for state in self.dict_transitions.keys():
+            if state not in self.list_final_states:
+                list_non_final_states.append(state)
+        partition = {
+            "T": {},
+            "NT": {},
+        }
+        for state in self.dict_transitions.keys():
+            if state in self.list_final_states:
+                partition["T"][state] = []
+            else:
+                partition["NT"][state] = []
+        # Recursion on splitting the states if not same pattern
+        new_partition = self.split_groups_minimization(partition)
+        while True:
+            if new_partition.keys() == partition.keys():
+                return new_partition
+            partition=new_partition
+            new_partition = self.split_groups_minimization(new_partition)
+
+    def minimized_fa(self):
+        # Check if the FA is deterministic and complete before minimizing it
+        if not self.is_deterministic():
+            print("Minimization failed. Your automaton is not deterministic ⚠\n")
+            return
+        if not self.is_complete():
+            print("Minimization failed. Your automaton is not complete ⚠\n")
+            return
+        # Get the final partition minimization
+        minimized_partition = self.final_partition_minimization()
+        # Get the new states for the minimized automaton
+        state_map = []
+        for group, states in minimized_partition.items():
+            state_map.append(",".join(states))
+        # Initialize the transitions for those new states
+        new_transitions = {}
+        for new_state in state_map:
+            new_transitions[new_state] = {}
+        # Loop through each state and its transitions in the original FA
+        for state, transitions in self.dict_transitions.items():
+            # For each group of states in the minimized FA
+            for new_state in state_map:
+                # Check if the original state is part of the new group
+                if state in new_state.split(","):
+                    # For each symbol and its corresponding list of destination states from the original state
+                    for symbol, dest_list in transitions.items():
+                        # Iterate through each destination in the list
+                        for dest in dest_list:
+                            # Check each group in state_map to see if it contains the destination state
+                            for s in state_map:
+                                # If the destination state is part of the group
+                                if dest in s.split(","):
+                                    # Update the new transition for this symbol with the new state (group of states)
+                                    new_transitions[new_state][symbol] = s
+        # Defining the file path for the new CSV file to store the minimized finite automaton
+        new_csv_filepath = "minimized_fa.csv"
+        with (open(new_csv_filepath, "w", newline="") as csvfile):
+            writer = csv.writer(csvfile, delimiter=";")
+            writer.writerow(["", ""] + self.list_symbols)
+            # Initialize a list to keep track of the states that have already been written to the CSV
+            written_states = []
+            # Iterate through each new state in the minimized automaton transitions
+            for new_state in new_transitions.keys():
+                for state in new_state.split(","):
+                    # Check if the state is an initial or final state and mark it accordingly
+                    if state in self.list_initial_states and state in self.list_final_states:
+                        row = ["=", new_state]
+                    elif state in self.list_initial_states:
+                        row = [">", new_state]
+                    elif state in self.list_final_states:
+                        row = ["<", new_state]
+                    else:
+                        row = ["", new_state]
+                    # For each symbol, check the transition and add it to the row
+                    for symbol in self.list_symbols:
+                        transition = new_transitions[new_state].get(symbol)
+                        row.append(transition)
+                    # Write the row only if the state hasn't been written already
+                    if new_state not in written_states:
+                        writer.writerow(row)
+                        written_states.append(new_state) # Mark this state as written
+
+        print("The minimized automaton has been written in " + new_csv_filepath)
 
     def standardization(self):
         dict_transition_initial_state = {"i": {}}
