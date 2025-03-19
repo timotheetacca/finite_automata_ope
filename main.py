@@ -1,29 +1,33 @@
 import os
+
 from finite_automata_functions import *
 
-def main():
-    print("Welcome to the Finite Automata Program!")
-    print("You can perform various operations on a finite automaton.\n")
-
-    file_type = int(input("If you want to start from a CSV file (enter '1') or a text file (enter '2'): "))
+def load_fa():
+    file_type = int(input("If you want to start from a CSV file (enter '1')  or a text file (enter '2') : "))
     while file_type != 1 and file_type != 2:
         print("\nInvalid input. Please enter '1' or '2'")
-        file_type = int(input("If you want to start from a CSV file (enter '1') or a text file (enter '2'): "))
+        file_type = int(input("If you want to start from a CSV file (enter '1')  or a text file (enter '2') : "))
 
     filepath = input("Enter the path to your file: ")
     while not os.path.exists(filepath):
-        print(f"File '{filepath}' does not exist. Please enter a valid file path.")
+        print(f"File'{filepath}' does not exist. Please enter a valid file path.")
         filepath = input("\nEnter the path to your file: ")
 
     fa = finite_automata(filepath)
 
-    # Load the automaton information based on the file type
-    if file_type == 1:
+    if file_type == "csv":
         fa.get_fa_information_from_csv(filepath)
         print("Finite automaton successfully loaded from CSV file.")
     else:
         fa.get_fa_information()
         print("Finite automaton successfully loaded from text file.")
+    return fa
+
+def main():
+    print("Welcome to the Finite Automata  Program!")
+    print("You can perform various operations on a finite automaton.")
+
+    load_fa()
 
     running = True
     while running:
@@ -38,9 +42,10 @@ def main():
         print("8. Standardize the FA")
         print("9. Minimize the FA")
         print("10. Get complementary FA")
-        print("11. Exit")
+        print("11. Change FA")
+        print("12. Exit")
 
-        choice = input("Enter your choice (1-11): ").strip()
+        choice = input("Enter your choice (1-12): ").strip()
 
         if choice == "1":
             print("\nFA Information:")
@@ -86,11 +91,14 @@ def main():
             print("The complementary automaton has been created.")
 
         elif choice == "11":
-            print("Exiting the program...")
+            fa = load_fa()
+
+        elif choice == "12":
+            print("Exiting the program. Goodbye!")
             running = False
 
         else:
-            print("Invalid choice. Please enter a number between 1 and 11.")
+            print("Invalid choice. Please enter a number between 1 and 12.")
 
 
 if __name__ == "__main__":
