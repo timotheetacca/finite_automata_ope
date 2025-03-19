@@ -171,7 +171,8 @@ class finite_automata:
                         print(
                             f"Your automaton is not deterministic. State {state} has {len(self.dict_transitions[state][symbol])} transitions for symbol '{symbol}' ⚠ \n")
                     return False
-
+        if display:
+            print("Your automaton is deterministic")
         return True
 
     def is_complete(self, display=False):
@@ -183,6 +184,8 @@ class finite_automata:
                         print(
                             f"Your automaton is not complete. State {state} has no transitions for symbol '{symbol}' ⚠ \n")
                     return False
+        if display:
+            print("Your automaton is complete")
         return True
 
     def is_standard(self, display=False):
@@ -198,7 +201,8 @@ class finite_automata:
                     if display:
                         print(f"Your automaton is not standard. {state} goes to the initial state ⚠ \n")
                     return False
-
+        if display:
+            print("Your automaton is standard")
         return True
 
     def completion(self):
