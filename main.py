@@ -24,7 +24,7 @@ def load_fa():
     return fa
 
 def main():
-    print("\033[94mWelcome to the Finite Automata  Program!\033[0m")
+    print("\033[94mWelcome to the Finite Automata Program!\033[0m")
     print("You can perform various operations on a finite automaton.")
 
     fa = load_fa()
