@@ -27,7 +27,7 @@ def main():
     print("\033[94mWelcome to the Finite Automata  Program!\033[0m")
     print("You can perform various operations on a finite automaton.")
 
-    load_fa()
+    fa = load_fa()
 
     running = True
     while running:
