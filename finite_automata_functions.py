@@ -160,7 +160,7 @@ class finite_automata:
         # Check if the automaton has more than 1 initial state, if yes, the automaton is not deterministic
         if self.nb_initial_states > 1:
             if display:
-                print("Your automaton is not deterministic. There are several initial states ⚠ \n")
+                print("\033[91mYour automaton is not deterministic. There are several initial states ⚠ \033[91m\n")
             return False
 
         # Check if a state has more than 1 transition for a given symbol, if yes, the automaton is not deterministic
@@ -169,9 +169,10 @@ class finite_automata:
                 if len(self.dict_transitions[state][symbol]) > 1:
                     if display:
                         print(
-                            f"Your automaton is not deterministic. State {state} has {len(self.dict_transitions[state][symbol])} transitions for symbol '{symbol}' ⚠ \n")
+                            f"\033[91mYour automaton is not deterministic. State {state} has {len(self.dict_transitions[state][symbol])} transitions for symbol '{symbol}' ⚠ \n\033[91m")
                     return False
-
+        if display:
+            print("\033[92mYour automaton is deterministic\033[0m")
         return True
 
     def is_complete(self, display=False):
@@ -181,8 +182,10 @@ class finite_automata:
                 if not self.dict_transitions[state][symbol]:
                     if display:
                         print(
-                            f"Your automaton is not complete. State {state} has no transitions for symbol '{symbol}' ⚠ \n")
+                            f"\033[91mYour automaton is not complete. State {state} has no transitions for symbol '{symbol}' ⚠ \n\033[91m")
                     return False
+        if display:
+            print("\033[92mYour automaton is complete\033[0m")
         return True
 
     def is_standard(self, display=False):
@@ -196,9 +199,10 @@ class finite_automata:
             for symbol in self.list_symbols:
                 if initial_state in self.dict_transitions[state][symbol]:
                     if display:
-                        print(f"Your automaton is not standard. {state} goes to the initial state ⚠ \n")
+                        print(f"\033[91mYour automaton is not standard. {state} goes to the initial state ⚠ \n\033[91m")
                     return False
-
+        if display:
+            print("\033[92mYour automaton is standard\033[0m")
         return True
 
     def completion(self):
@@ -365,10 +369,10 @@ class finite_automata:
     def minimized_fa(self):
         # Check if the FA is deterministic and complete before minimizing it
         if not self.is_deterministic():
-            print("Minimization failed. Your automaton is not deterministic ⚠\n")
+            print("\033[91mMinimization failed. Your automaton is not deterministic ⚠\n\033[91m")
             return
         if not self.is_complete():
-            print("Minimization failed. Your automaton is not complete ⚠\n")
+            print("\033[91mMinimization failed. Your automaton is not complete ⚠\n\033[91m")
             return
         # Get the final partition minimization
         minimized_partition = self.final_partition_minimization()
