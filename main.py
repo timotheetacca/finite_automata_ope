@@ -2,18 +2,11 @@ import os
 
 from finite_automata_functions import *
 
-
-def main():
-    print("\033[94mWelcome to the Finite Automata  Program!\033[0m")
-    print("You can perform various operations on a finite automaton.\n")
-
-    file_type = int(input(
-        "If you want to start from a \033[32m CSV file (enter '1') \033[0m or a \033[93mtext file (enter '2')\033[0m : "))
+def load_fa():
+    file_type = int(input("If you want to start from a \033[32m CSV file (enter '1') \033[0m or a \033[93mtext file (enter '2')\033[0m : "))
     while file_type != 1 and file_type != 2:
         print("\n\033[91mInvalid input. Please enter '1' or '2'\033[0m")
-        file_type = int(input(
-            "If you want to start from a \033[32m CSV file (enter '1') \033[0m or a \033[93mtext file (enter '2')\033[0m : "))
-
+        file_type = int(input("If you want to start from a \033[32m CSV file (enter '1') \033[0m or a \033[93mtext file (enter '2')\033[0m : "))
 
     filepath = input("Enter the path to your file: ")
     while not os.path.exists(filepath):
@@ -28,6 +21,13 @@ def main():
     else:
         fa.get_fa_information()
         print("\033[92mFinite automaton successfully loaded from text file.\033[0m")
+    return fa
+
+def main():
+    print("\033[94mWelcome to the Finite Automata  Program!\033[0m")
+    print("You can perform various operations on a finite automaton.")
+
+    load_fa()
 
     running = True
     while running:
@@ -42,9 +42,10 @@ def main():
         print("8. Standardize the FA")
         print("9. Minimize the FA")
         print("10. Get complementary FA")
-        print("11. Exit")
+        print("11. Change FA")
+        print("12. Exit")
 
-        choice = input("\033[94mEnter your choice (1-11): \033[0m").strip()
+        choice = input("\033[94mEnter your choice (1-12): \033[0m").strip()
 
         if choice == "1":
             print("\n\033[92mFA Information:\033[0m")
@@ -90,11 +91,14 @@ def main():
             print("\033[92mThe complementary automaton has been created.\033[0m")
 
         elif choice == "11":
+            fa = load_fa()
+
+        elif choice == "12":
             print("\033[91mExiting the program. Goodbye!\033[0m")
             running = False
 
         else:
-            print("\033[91mInvalid choice. Please enter a number between 1 and 11.\033[0m")
+            print("\033[91mInvalid choice. Please enter a number between 1 and 12.\033[0m")
 
 
 if __name__ == "__main__":
