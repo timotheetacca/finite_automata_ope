@@ -492,3 +492,28 @@ class finite_automata:
             # If the current state was a final state, it becomes a normal state and vice versa
             if state not in old_list_final_states and state not in self.list_initial_states:
                 self.list_final_states.append(state)
+
+    def epsilon_closure(self, dict_epsilon):
+        for state in self.dict_transitions.keys():
+            if state not in dict_epsilon:
+                dict_epsilon[state] = [state]
+                epsilons_to_process = self.dict_transitions[state]['E']
+
+                while epsilons_to_process:
+                    # Add to the dictionnary the current state
+                    dict_epsilon[state].append(epsilons_to_process[0])
+                    # If the current state has E enclosures too
+                    if self.dict_transitions[epsilons_to_process[0]]['E']:
+
+                        # Add them in the epsilons_to_process list
+                        for sub_transition in self.dict_transitions[epsilons_to_process[0]]['E']:
+                            if sub_transition not in epsilons_to_process:
+                                epsilons_to_process.append(sub_transition)
+
+                    # Remove the processed epsilon
+                    epsilons_to_process.pop(0)
+
+        return dict_epsilon
+
+
+
