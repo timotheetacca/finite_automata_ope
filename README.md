@@ -65,6 +65,7 @@ The text file representing an automaton should have the following structure:
 
 ### Example Usage
 
+If you'd like to use the program's functions, here are a few examples
 ```python
 # Initialize the FA with a file path
 fa = finite_automata("fa_example.txt")
