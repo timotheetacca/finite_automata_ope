@@ -259,20 +259,22 @@ class finite_automata:
         # If there are epsilon transitions, process them
         if self.dict_transition_epsilon:
             for state in self.dict_transition_epsilon.keys():
-                # Get all states reachable via epsilon transitions from the current state
-                epsilon_reachable_states = self.dict_transition_epsilon[state]
+                # Get the epsilon closure for the current state
+                epsilon_states = self.dict_transition_epsilon[state]
 
-                # For each state reachable via epsilon transitions
-                for epsilon_state in epsilon_reachable_states:
-                    # Add transitions from the epsilon-reachable state to the original state
+                # Propagate transitions from states in the epsilon closure
+                for epsilon_state in epsilon_states:
                     for symbol in self.list_symbols:
                         if symbol != "E":
-                            # Ensure the symbol exists in the transitions for the epsilon-reachable state
-                            if symbol in self.dict_transitions[epsilon_state]:
-                                for sub_transition in self.dict_transitions[epsilon_state][symbol]:
-                                    # Add the transition to the original state if it doesn't already exist
-                                    if sub_transition not in self.dict_transitions[state][symbol]:
-                                        self.dict_transitions[state][symbol].append(sub_transition)
+                            if epsilon_state in self.list_final_states:
+                                self.dict_transitions[state][symbol].append(epsilon_state)
+
+                            # Add transitions from the epsilon state to the original state
+                            for sub_transition in self.dict_transitions[epsilon_state][symbol]:
+                                if sub_transition not in self.dict_transitions[state][symbol]:
+                                    self.dict_transitions[state][symbol].append(sub_transition)
+        print(self.dict_transitions)
+        print(self.dict_transition_epsilon)
 
         # If there are multiple initial states, create a combined initial state
         if len(self.list_initial_states) > 1:
