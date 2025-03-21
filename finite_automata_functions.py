@@ -66,8 +66,15 @@ class finite_automata:
         with open(csv_filepath, "w", newline="") as csvfile:
             writer = csv.writer(csvfile, delimiter=";")
 
-            # Write the header of the CSV with symbols as column names, including "E"
-            writer.writerow(["", ""] + self.list_symbols)
+            # Determine if epsilon transitions exist
+            has_epsilon = bool(self.dict_transition_epsilon)  # True if not empty, False if empty
+
+            # Write the header of the CSV with symbols as column names
+            header_symbols = []
+            for symbol in self.list_symbols:
+                if symbol != "E" or has_epsilon:
+                    header_symbols.append(symbol)
+            writer.writerow(["", ""] + header_symbols)
 
             # Write each state to the CSV, marking initial states with '>' and final states with '<'
             for state in self.dict_transitions.keys():
@@ -82,15 +89,15 @@ class finite_automata:
                         row = ["", state]
 
                     for symbol in self.list_symbols:
-                        if symbol == "E":
-                            # Handle epsilon transitions
-                            epsilon_transitions = self.dict_transition_epsilon.get(state, [])
-                            if epsilon_transitions:
-                                row.append(",".join(sorted(epsilon_transitions)))
+                        if symbol != "E" or has_epsilon:
+                            if symbol == "E":
+                                # Handle epsilon transitions
+                                epsilon_transitions = self.dict_transition_epsilon.get(state, [])
+                                if epsilon_transitions:
+                                    row.append(",".join(sorted(epsilon_transitions)))
+                                else:
+                                    row.append("--")
                             else:
-                                row.append("--")
-                        else:
-                            if len(self.dict_transition_epsilon.keys()) > 0:
                                 # Handle non-epsilon transitions
                                 transition = self.dict_transitions[state].get(symbol, [])
                                 if transition:
@@ -103,9 +110,7 @@ class finite_automata:
             if "P" in self.dict_transitions.keys():
                 row = ["", "P"]
                 for symbol in self.list_symbols:
-                    if symbol == "E":
-                        row.append("P")
-                    else:
+                    if symbol != "E" or has_epsilon:
                         row.append("P")
                 writer.writerow(row)
 
@@ -237,8 +242,9 @@ class finite_automata:
         # Link all the empty transitions to the sink state
         for state in self.dict_transitions.keys():
             for symbol in self.list_symbols:
-                if not self.dict_transitions[state][symbol]:
-                    self.dict_transitions[state][symbol] = ["P"]
+                if symbol != "E":
+                    if not self.dict_transitions[state][symbol]:
+                        self.dict_transitions[state][symbol] = ["P"]
 
         # Add the sink state
         self.dict_transitions["P"] = {}
@@ -259,22 +265,20 @@ class finite_automata:
         # If there are epsilon transitions, process them
         if self.dict_transition_epsilon:
             for state in self.dict_transition_epsilon.keys():
-                # Get the epsilon closure for the current state
-                epsilon_states = self.dict_transition_epsilon[state]
-
-                # Propagate transitions from states in the epsilon closure
-                for epsilon_state in epsilon_states:
+                for transition in self.dict_transition_epsilon[state]:
                     for symbol in self.list_symbols:
                         if symbol != "E":
-                            if epsilon_state in self.list_final_states:
-                                self.dict_transitions[state][symbol].append(epsilon_state)
+                            # If the value is a final state, add it to the dict_transition!
+                            if transition in self.list_final_states:
+                                if transition not in self.dict_transitions[state][symbol]:
+                                    self.dict_transitions[state][symbol].append(transition)
 
-                            # Add transitions from the epsilon state to the original state
-                            for sub_transition in self.dict_transitions[epsilon_state][symbol]:
+                            # Else add the list of transitions
+                            for sub_transition in self.dict_transitions[transition][symbol]:
                                 if sub_transition not in self.dict_transitions[state][symbol]:
-                                    self.dict_transitions[state][symbol].append(sub_transition)
-        print(self.dict_transitions)
-        print(self.dict_transition_epsilon)
+                                     self.dict_transitions[state][symbol].append(sub_transition)
+            # Erase the epsilon transitions
+            self.dict_transition_epsilon = {}
 
         # If there are multiple initial states, create a combined initial state
         if len(self.list_initial_states) > 1:
@@ -334,7 +338,21 @@ class finite_automata:
 
                     # If there are transitions, create a new combined state
                     if transitions:
-                        new_state = "|".join(sorted(transitions))
+                        unique_transitions = []
+                        for transition in transitions:
+                            if "|" in transition:
+                                # Split the combined states and add their components
+                                for sub_state in transition.split("|"):
+                                    if sub_state not in unique_transitions:
+                                        unique_transitions.append(sub_state)
+                            else:
+                                # Add the transition if not already in the list
+                                if transition not in unique_transitions:
+                                    unique_transitions.append(transition)
+
+                        # Sort and join the unique transitions to form the new state
+                        new_state = "|".join(sorted(unique_transitions))
+
 
                         # If the new state doesn't exist, add it to the dictionary and process it later
                         if new_state not in self.dict_transitions:
@@ -500,9 +518,10 @@ class finite_automata:
 
         for initial_state in self.list_initial_states:
             for symbol in self.list_symbols:
-                for state_to_add in self.dict_transitions[initial_state][symbol]:
-                    if state_to_add not in dict_transition_initial_state["i"][symbol]:
-                        dict_transition_initial_state["i"][symbol].append(state_to_add)
+                if symbol != "E":
+                    for state_to_add in self.dict_transitions[initial_state][symbol]:
+                        if state_to_add not in dict_transition_initial_state["i"][symbol]:
+                            dict_transition_initial_state["i"][symbol].append(state_to_add)
 
         self.nb_initial_states = 1
         self.list_initial_states = ["i"]
@@ -529,7 +548,7 @@ class finite_automata:
         new_dict_transitions = {}
         for state in self.dict_transitions:
             if state in reachable_states:
-                new_dict_transitions[state] = self.dict_transitions[state]
+                    new_dict_transitions[state] = self.dict_transitions[state]
 
         self.dict_transitions = new_dict_transitions
 
@@ -564,16 +583,18 @@ class finite_automata:
         # Calculate epsilon closure for each state
         for state in self.dict_transitions.keys():
             if state not in epsilon_closures:
-                epsilon_closures[state] = set()
+                epsilon_closures[state] = []
                 stack = [state]
 
                 while stack:
                     current_state = stack.pop()
-                    epsilon_closures[state].add(current_state)
+                    # Add the current state to the epsilon closure if it's not already there
+                    if current_state not in epsilon_closures[state]:
+                        epsilon_closures[state].append(current_state)
 
-                    # Add all states reachable via epsilon transitions
-                    for epsilon_state in self.dict_transition_epsilon.get(current_state, []):
-                        if epsilon_state not in epsilon_closures[state]:
-                            stack.append(epsilon_state)
+                        # Add all states reachable via epsilon transitions
+                        for epsilon_state in self.dict_transition_epsilon.get(current_state, []):
+                            if epsilon_state not in epsilon_closures[state]:
+                                stack.append(epsilon_state)
 
         return epsilon_closures
