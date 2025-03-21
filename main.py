@@ -3,10 +3,10 @@ import os
 from finite_automata_functions import *
 
 def load_fa():
-    file_type = int(input("If you want to start from a CSV file (enter '1')  or a text file (enter '2') : "))
-    while file_type != 1 and file_type != 2:
+    file_type = input("If you want to start from a CSV file (enter '1') or a text file (enter '2') : ")
+    while file_type != '1' and file_type != '2':
         print("\nInvalid input. Please enter '1' or '2'")
-        file_type = int(input("If you want to start from a CSV file (enter '1')  or a text file (enter '2') : "))
+        file_type = input("If you want to start from a CSV file (enter '1') or a text file (enter '2') : ")
 
     filepath = input("Enter the path to your file: ")
     while not os.path.exists(filepath):
@@ -27,6 +27,7 @@ def main():
     print("Welcome to the Finite Automata Program!")
     print("You can perform various operations on a finite automaton.")
 
+    csv_filepath = None
     fa = load_fa()
 
     running = True
@@ -72,29 +73,42 @@ def main():
 
         elif choice == "6":
             fa.completion()
-            print("Your automaton has been completed.")
+            if csv_filepath is not None:
+                fa.get_csv_from_fa(csv_filepath)
+                print(f"Your automaton has been exported to {csv_filepath}")
+
+            print("Your automaton has been completed")
 
         elif choice == "7":
             fa.determinization()
-            print("Your automaton has been determinized.")
+            if csv_filepath is not None:
+                fa.get_csv_from_fa(csv_filepath)
+                print(f"Your automaton has been exported to {csv_filepath}")
+            print("Your automaton has been determinized")
 
         elif choice == "8":
             fa.standardization()
-            print("Your automaton has been standardized.")
+            if csv_filepath is not None:
+                fa.get_csv_from_fa(csv_filepath)
+                print(f"Your automaton has been exported to {csv_filepath}")
+            print("Your automaton has been standardized")
 
         elif choice == "9":
             fa.minimized_fa()
-            print("Your automaton has been minimized.")
+            print("Your automaton has been minimized")
 
         elif choice == "10":
             fa.complementary()
-            print("The complementary automaton has been created.")
+            if csv_filepath is not None:
+                fa.get_csv_from_fa(csv_filepath)
+                print(f"Your automaton has been exported to {csv_filepath}")
+            print("The complementary automaton has been created")
 
         elif choice == "11":
             fa = load_fa()
 
         elif choice == "12":
-            print("Exiting the program. Goodbye!")
+            print("Exiting the program...")
             running = False
 
         else:
