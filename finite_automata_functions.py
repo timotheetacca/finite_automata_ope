@@ -164,7 +164,7 @@ class finite_automata:
             return False
 
         # Check if a state has more than 1 transition for a given symbol, if yes, the automaton is not deterministic
-        for state in self.dict_transitions:
+        for state in self.dict_transitions.keys():
             for symbol in self.list_symbols:
                 if len(self.dict_transitions[state][symbol]) > 1:
                     if display:
