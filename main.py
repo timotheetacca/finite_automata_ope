@@ -44,9 +44,10 @@ def main():
         print("9. Minimize the FA")
         print("10. Get complementary FA")
         print("11. Change FA")
-        print("12. Exit")
+        print("12. Display FA")
+        print("13. Exit")
 
-        choice = input("Enter your choice (1-12): ").strip()
+        choice = input("Enter your choice (1-13): ").strip()
 
         if choice == "1":
             print("\nFA Information:")
@@ -108,11 +109,14 @@ def main():
             fa = load_fa()
 
         elif choice == "12":
+            fa.display()
+
+        elif choice == "13":
             print("Exiting the program...")
             running = False
 
         else:
-            print("Invalid choice. Please enter a number between 1 and 12.")
+            print("Invalid choice. Please enter a number between 1 and 13.")
 
 
 if __name__ == "__main__":
