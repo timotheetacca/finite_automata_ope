@@ -1,5 +1,3 @@
-fa_txt/fa_.txt
-
 FA Information:
 Number of symbols: 2
 Symbols: ['a', 'b']
