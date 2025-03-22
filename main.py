@@ -10,21 +10,33 @@ def load_fa():
 
     filepath = input("Enter the path to your file: ")
     while not os.path.exists(filepath):
-        print(f"File'{filepath}' does not exist. Please enter a valid file path.")
+        print(f"File '{filepath}' does not exist. Please enter a valid file path.")
         filepath = input("\nEnter the path to your file: ")
+
+    if file_type == '1':
+        while ".csv" not in filepath or os.path.exists(filepath) == False:
+            print(f"File '{filepath}' is not a CSV. Please enter a valid file path.")
+            filepath = input("\nEnter the path to your file: ")
+
+    if file_type == '2':
+        while ".txt" not in filepath or os.path.exists(filepath) == False:
+            print(f"File '{filepath}' is not a text file. Please enter a valid file path.")
+            filepath = input("\nEnter the path to your file: ")
 
     fa = finite_automata(filepath)
 
-    if file_type == "csv":
+    if file_type == "1":
         fa.get_fa_information_from_csv(filepath)
         print("Finite automaton successfully loaded from CSV file.")
+
     else:
         fa.get_fa_information()
         print("Finite automaton successfully loaded from text file.")
+
     return fa
 
 def main():
-    print("Welcome to the Finite Automata Program!")
+    print("Welcome to the Finite Automata Operations Project!")
     print("You can perform various operations on a finite automaton.")
 
     csv_filepath = None
@@ -81,11 +93,15 @@ def main():
             print("Your automaton has been completed")
 
         elif choice == "7":
-            fa.determinization()
-            if csv_filepath is not None:
-                fa.get_csv_from_fa(csv_filepath)
-                print(f"Your automaton has been exported to {csv_filepath}")
-            print("Your automaton has been determinized")
+            if not fa.is_deterministic():
+                fa.determinization()
+                if csv_filepath is not None:
+                    fa.get_csv_from_fa(csv_filepath)
+                    print(f"Your automaton has been exported to {csv_filepath}")
+                print("Your automaton has been determinized")
+            else:
+                print("Your automaton is already determinized")
+
 
         elif choice == "8":
             fa.standardization()
@@ -96,7 +112,6 @@ def main():
 
         elif choice == "9":
             fa.minimized_fa()
-            print("Your automaton has been minimized")
 
         elif choice == "10":
             fa.complementary()

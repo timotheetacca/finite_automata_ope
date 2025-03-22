@@ -403,8 +403,10 @@ class finite_automata:
                                 if dest in s.split(","):
                                     # Update the new transition for this symbol with the new state (group of states)
                                     new_transitions[new_state][symbol] = s
+
         # Defining the file path for the new CSV file to store the minimized finite automaton
-        new_csv_filepath = "minimized_fa.csv"
+        new_csv_filepath = self.filepath.split(".txt")[0]+"_minimized.csv"
+
         with (open(new_csv_filepath, "w", newline="") as csvfile):
             writer = csv.writer(csvfile, delimiter=";")
             writer.writerow(["", ""] + self.list_symbols)
