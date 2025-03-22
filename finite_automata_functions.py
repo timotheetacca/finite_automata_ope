@@ -457,16 +457,20 @@ class finite_automata:
         if not self.is_complete():
             print("Minimization failed. Your automaton is not complete ⚠\n")
             return
+
         # Get the final partition minimization
         minimized_partition = self.final_partition_minimization()
+
         # Get the new states for the minimized automaton
         state_map = []
         for group, states in minimized_partition.items():
             state_map.append(",".join(states))
+
         # Initialize the transitions for those new states
         new_transitions = {}
         for new_state in state_map:
             new_transitions[new_state] = {}
+
         # Loop through each state and its transitions in the original FA
         for state, transitions in self.dict_transitions.items():
             # For each group of states in the minimized FA
@@ -484,39 +488,22 @@ class finite_automata:
                                     if dest in s.split(","):
                                         # Update the new transition for this symbol with the new state (group of states)
                                         new_transitions[new_state][symbol] = s
-        # Defining the file path for the new CSV file to store the minimized finite automaton
-        new_csv_filepath = "minimized_fa.csv"
-        with (open(new_csv_filepath, "w", newline="") as csvfile):
-            writer = csv.writer(csvfile, delimiter=";")
-            list_symbols=[]
-            # Get rid of Epsilon Closures for minimized fa
+
+        old_final_state = self.list_final_states
+        self.list_final_states =[]
+        for state in new_transitions.keys():
             for symbol in self.list_symbols:
-                if symbol != 'E':
-                    list_symbols.append(symbol)
-            writer.writerow(["", ""] + list_symbols)
-            # Initialize a list to keep track of the states that have already been written to the CSV
-            written_states = []
-            # Iterate through each new state in the minimized automaton transitions
-            for new_state in new_transitions.keys():
-                if new_state not in written_states:
-                    for state in new_state.split(","):
-                        # Check if the state is an initial or final state and mark it accordingly
-                        if state in self.list_initial_states and state in self.list_final_states:
-                            row = ["=", new_state]
-                        elif state in self.list_initial_states:
-                            row = [">", new_state]
-                        elif state in self.list_final_states:
-                            row = ["<", new_state]
-                        else:
-                            row = ["", new_state]
-                        written_states.append(new_state)  # Mark this state as written
-                    # For each symbol, check the transition and add it to the row
-                    for symbol in self.list_symbols:
-                        if symbol != "E":
-                            transition = new_transitions[new_state].get(symbol)
-                            row.append(transition)
-                # Write the row only if the state hasn't been written already
-                writer.writerow(row)
+                if symbol != "E":
+                    for i in range (len(old_final_state)):
+                        if old_final_state[i] in state and state not in self.list_final_states:
+                            self.list_final_states.append(state)
+                    new_transitions[state][symbol] = new_transitions[state][symbol].split(",")
+
+        self.dict_transitions = new_transitions
+
+        # Defining the file path for the new CSV file to store the minimized finite automaton
+        new_csv_filepath = self.filepath.split(".txt")[0]+".csv"
+        self.get_csv_from_fa(new_csv_filepath)
 
         print("The minimized automaton has been written in " + new_csv_filepath)
 
