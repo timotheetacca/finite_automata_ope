@@ -573,6 +573,88 @@ class finite_automata:
             if state not in old_list_final_states and state not in self.list_initial_states:
                 self.list_final_states.append(state)
 
+
+    def input_word_check(self, state, word, start=0):
+        # using count to start the word not specifically at the start, which will be relevant lower in the function, starts at 0 if not specified
+        count = start
+        # using current_state to "start the automaton" not specifically at the initial state, which is also relevant lower in the function
+        current_state = state
+        # fails is used when we want to break the following while loop on "soft" problems
+        fails = False
+
+        # as long as we don't reach the end of the word and there's no soft problem
+        while count < len(word) and not fails:
+            print("\n" + str(count+1) + ". Checking letter '" + word[count] + "' (stops after " + str(len(word)) + " iterations) ...")
+
+            # if the current letter figures in the available transitions
+            if word[count] in self.dict_transitions[current_state].keys():
+                print("Next letter found!")
+
+                print("Current state: [" + current_state + "] -> ", end="")
+
+                print(self.dict_transitions[current_state])
+
+                # if where said transition(s) have no output, There's nothing we can do.
+                if len(self.dict_transitions[current_state][word[count]]) == 0:
+                    return False
+
+                # if it has one output, we just have to study this one, pretty straightforward
+                elif len(self.dict_transitions[current_state][word[count]]) == 1:
+                    current_state = self.dict_transitions[current_state][word[count]][0]
+
+                    # we NEED to be at the end of the word in order to be able to return a True
+                    if count == len(word) - 1:
+                        # initiate the check
+                        check = False
+                        for final in self.list_final_states:
+                            # if the current state is one of the final states, return True. if it's not, return False because we're at the end of the word
+                            if current_state == final:
+                                check = True
+                        return check
+
+                # if there's more than one output to the transition, reiterate this on each of the outputs (this is where the first two variables of the function come in handy)
+                else:
+                    # named fork because the transition forks into multiple outputs
+                    for fork in self.dict_transitions[current_state][word[count]]:
+                        if self.input_word_check(fork, word, count + 1):
+                            # returns True if even one of the forks lands a True (we only need the word to work through one final state)
+                            return True
+                    # return False if there's zero final state that works for the word
+                    return False
+
+                count += 1
+
+            else:
+                # the aforementioned soft problem is when the current letter isn't in the current state transitions. With this, all the possibilities are covered
+                fails = True
+
+        # if the loop fails because we reached a transition with no output, return False
+        if fails:
+            return False
+        # if the loop didn't fail but we're not at the end of the word, also return not True (so False)
+        elif not fails and count != len(word):
+            return False
+        # if the loop didn't fail and we're at the end of the word, return True
+        else:
+            return True
+
+    def word_recognition(self, word: str):
+        initial_states = ", ".join(self.list_initial_states)
+        final_states = ", ".join(self.list_final_states)
+        print("As a reminder, the initial states are " + initial_states + " and the final states are " + final_states + ".")
+
+        # runs input_word_check on every input, returns and notifies a True if the word works with one input, False if it didn't with any
+        for state in self.list_initial_states:
+            result = self.input_word_check(state, word)
+
+            if result:
+                print("\nThe word '" + word + "' worked through one of the inputs!")
+                return True
+
+        print("\nWent through all the inputs of this automaton and found nothing")
+        return False
+
+
     def epsilon_closure(self):
         # Initialize the epsilon closure dictionary
         epsilon_closures = {}
