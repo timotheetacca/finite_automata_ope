@@ -57,9 +57,10 @@ def main():
         print("10. Get complementary FA")
         print("11. Change FA")
         print("12. Display FA")
-        print("13. Exit")
+        print("13. Word recognition")
+        print("14. Exit")
 
-        choice = input("Enter your choice (1-13): ").strip()
+        choice = input("Enter your choice (1-14): ").strip()
 
         if choice == "1":
             print("\nFA Information:")
@@ -128,11 +129,15 @@ def main():
             fa.display()
 
         elif choice == "13":
+            word = input("Enter the word you want to analyze :")
+            fa.word_recognition(word)
+
+        elif choice == "14":
             print("Exiting the program...")
             running = False
 
         else:
-            print("Invalid choice. Please enter a number between 1 and 13.")
+            print("Invalid choice. Please enter a number between 1 and 14.")
 
 
 if __name__ == "__main__":
