@@ -524,35 +524,36 @@ class finite_automata:
         # 2 because we have the column with arrow for initial and final states
         padding = [2]
         max_state = 0
-        max_symbol = [2]*len(self.list_symbols)
+        max_symbol = [2] * len(self.list_symbols)
         for state in self.dict_transitions.keys():
             if len(state) > max_state:
                 max_state = len(state)
             for i, symbol in enumerate(self.list_symbols):
-                # Remove brackets and 1 space the word
-                max_symbol[i] = max(max_symbol[i], len(str(self.dict_transitions[state][symbol])) - len(self.dict_transitions[state][symbol]) - 1)
+                # Calculate the length of the transition list
+                transition_length = len(", ".join(self.dict_transitions[state][symbol]))
+                max_symbol[i] = max(max_symbol[i], transition_length)
         padding.append(max_state)
         for i in range(len(self.list_symbols)):
             padding.append(max_symbol[i])
 
         # Write the box lines with the padding
         draw_line_str = "+"
-        for i in range (len(padding)):
-            draw_line_str += "-"*(padding[i]+2)
+        for i in range(len(padding)):
+            draw_line_str += "-" * (padding[i] + 2)
             draw_line_str += "+"
 
         # Print the initial line above the header
         print(draw_line_str)
 
-        # Initial the 2 first boxes with empty character for passing
-        line = "|" + " "*(padding[0]+2)+ "|" + " "*(padding[1]+2)+"|"
+        # Initialize the 2 first boxes with empty character for passing
+        line = "|" + " " * (padding[0] + 2) + "|" + " " * (padding[1] + 2) + "|"
 
         # Get the symbol line with padding
-        for i in range (2, len(padding)):
-            diff_word = padding[i]-(len(self.list_symbols[i-2]))
+        for i in range(2, len(padding)):
+            diff_word = padding[i] - (len(self.list_symbols[i - 2]))
             left_padding = diff_word // 2
             right_padding = diff_word - left_padding
-            line += " "*(left_padding+1) +self.list_symbols[i-2]+" "*(right_padding+1)+"|"
+            line += " " * (left_padding + 1) + self.list_symbols[i - 2] + " " * (right_padding + 1) + "|"
 
         # Print the symbol line then the outline
         print(line)
@@ -581,18 +582,14 @@ class finite_automata:
                 transition_line = ""
 
                 # Get -- if transition is empty
-                if self.dict_transitions[state][symbol]:
+                if not self.dict_transitions[state][symbol]:
                     transition_line = "--"
-
                 else:
                     # Get the transition joined with ','
-                    for transition in self.dict_transitions[state][symbol]:
-                        transition_line += transition+","
-                    # Remove the last ','
-                    transition_line = transition_line[:-1]
+                    transition_line = ", ".join(self.dict_transitions[state][symbol])
 
                 # Get the transition with padding
-                diff_word = padding[i+2] - len(transition_line)
+                diff_word = padding[i + 2] - len(transition_line)
                 left_padding = diff_word // 2
                 right_padding = diff_word - left_padding
                 line += " " * (left_padding + 1) + transition_line + " " * (right_padding + 1) + "|"
@@ -600,10 +597,3 @@ class finite_automata:
             # Print the line with outline
             print(line)
             print(draw_line_str)
-
-
-
-
-
-
-
