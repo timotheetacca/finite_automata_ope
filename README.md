@@ -62,6 +62,12 @@ The text file representing an automaton should have the following structure:
 - **Line 5**: Number of transitions
 - **Lines 6 and beyond**: Transitions in the form `<source state> <symbol> <target state>`
 
+### Results
+All the results of the FA tests are available in the `fa_result` file, in the following format:
+- Display information
+- Display the classic FA
+- Display the complete and determinized FA
+- Display the minimized FA
 
 ### Example Usage
 
