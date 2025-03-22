@@ -64,6 +64,7 @@ def main():
         if choice == "1":
             print("\nFA Information:")
             print(f"Number of symbols: {fa.nb_symbols}")
+            print(f"Symbols: {fa.list_symbols}")
             print(f"Number of initial states: {fa.nb_initial_states}")
             print(f"Initial states: {fa.list_initial_states}")
             print(f"Number of final states: {fa.nb_final_states}")
