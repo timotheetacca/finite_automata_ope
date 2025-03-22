@@ -1,0 +1,24 @@
+FA Information:
+Number of symbols: 1
+Symbols: []
+Number of initial states: 1
+Initial states: ['0']
+Number of final states: 1
+Final states: ['0']
+Transitions: {}
+
++------+--+
+|      |  |
++------+--+
+
++------+---+
+|      |   |
++------+---+
+|      | P |
++------+---+
+
++------+---+
+|      |   |
++------+---+
+|      | P |
++------+---+
