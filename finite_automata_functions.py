@@ -483,30 +483,35 @@ class finite_automata:
         new_csv_filepath = "minimized_fa.csv"
         with (open(new_csv_filepath, "w", newline="") as csvfile):
             writer = csv.writer(csvfile, delimiter=";")
-            writer.writerow(["", ""] + self.list_symbols)
+            list_symbols=[]
+            # Get rid of Epsilon Closures for minimized fa
+            for symbol in self.list_symbols:
+                if symbol != 'E':
+                    list_symbols.append(symbol)
+            writer.writerow(["", ""] + list_symbols)
             # Initialize a list to keep track of the states that have already been written to the CSV
             written_states = []
             # Iterate through each new state in the minimized automaton transitions
             for new_state in new_transitions.keys():
-                for state in new_state.split(","):
-                    # Check if the state is an initial or final state and mark it accordingly
-                    if state in self.list_initial_states and state in self.list_final_states:
-                        row = ["=", new_state]
-                    elif state in self.list_initial_states:
-                        row = [">", new_state]
-                    elif state in self.list_final_states:
-                        row = ["<", new_state]
-                    else:
-                        row = ["", new_state]
+                if new_state not in written_states:
+                    for state in new_state.split(","):
+                        # Check if the state is an initial or final state and mark it accordingly
+                        if state in self.list_initial_states and state in self.list_final_states:
+                            row = ["=", new_state]
+                        elif state in self.list_initial_states:
+                            row = [">", new_state]
+                        elif state in self.list_final_states:
+                            row = ["<", new_state]
+                        else:
+                            row = ["", new_state]
+                        written_states.append(new_state)  # Mark this state as written
                     # For each symbol, check the transition and add it to the row
                     for symbol in self.list_symbols:
                         if symbol != "E":
                             transition = new_transitions[new_state].get(symbol)
                             row.append(transition)
-                    # Write the row only if the state hasn't been written already
-                    if new_state not in written_states:
-                        writer.writerow(row)
-                        written_states.append(new_state)  # Mark this state as written
+                # Write the row only if the state hasn't been written already
+                writer.writerow(row)
 
         print("The minimized automaton has been written in " + new_csv_filepath)
 
